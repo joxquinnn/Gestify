@@ -2,7 +2,18 @@ package com.Gestify.Backend.controller;
 
 import com.Gestify.Backend.entities.Cliente;
 import com.Gestify.Backend.services.ClienteService;
+
+import jakarta.validation.Valid;
+
+import com.Gestify.Backend.mapper.ClienteMapper;
+import com.Gestify.Backend.dtos.ClienteResponseDTO;
+import com.Gestify.Backend.dtos.ClienteRequestDTO;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -11,46 +22,51 @@ import java.util.List;
 @RequestMapping("/api/clientes")
 public class ClienteController {
     
-    private final ClienteService clienteService;
+    @Autowired
+    private ClienteService clienteService;
 
-    public ClienteController(ClienteService clienteService) {
-        this.clienteService = clienteService;
-    }
+    @Autowired
+    private ClienteMapper clienteMapper;
 
     // Obtener todos los clietnes
     @GetMapping
-    public ResponseEntity<List<Cliente>> findAll() {
+    public ResponseEntity<List<ClienteResponseDTO>> getAllClientes() {
         List<Cliente> clientes = clienteService.findAll();
-        return new ResponseEntity<>(clientes, HttpStatus.OK);    
+        return ResponseEntity.ok(clienteMapper.toResponseDTOList(clientes));  
     }
 
     // Obtener un cliente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> findById(@PathVariable Long id) {
+    public ResponseEntity<ClienteResponseDTO> findById(@PathVariable Long id) {
         return clienteService.findById(id)
-                .map(cliente -> new ResponseEntity<>(cliente, HttpStatus.OK))
+                .map(cliente -> new ResponseEntity<>(clienteMapper.toResponseDTO(cliente), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Crear un nuevo cliente
     @PostMapping
-    public ResponseEntity<Cliente> saveCliente(@RequestBody Cliente cliente) {
-        Cliente newCliente = clienteService.save(cliente);
-        return new ResponseEntity<>(newCliente, HttpStatus.CREATED);
+    public ResponseEntity<ClienteResponseDTO> createCliente(@Valid @RequestBody ClienteRequestDTO clienteDto) {
+        
+        Cliente clienteToSave = clienteMapper.toEntity(clienteDto);
+
+        Cliente savedCliente = clienteService.save(clienteToSave);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(clienteMapper.toResponseDTO(savedCliente));
     }
 
     // Actualizar un cliente existente
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> setCliente(@PathVariable Long id, @RequestBody Cliente clienteDetails) {
+    public ResponseEntity<ClienteResponseDTO> setCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO clienteDetailsDTO) {
         return clienteService.findById(id)
                 .map(cliente -> {
-                    cliente.setNombre(clienteDetails.getNombre());
-                    cliente.setTelefono(clienteDetails.getTelefono());
-                    cliente.setEmail(clienteDetails.getEmail());
-                    cliente.setDireccion(clienteDetails.getDireccion());
+                    cliente.setNombre(clienteDetailsDTO.getNombre());
+                    cliente.setTelefono(clienteDetailsDTO.getTelefono());
+                    cliente.setEmail(clienteDetailsDTO.getEmail());
+                    cliente.setDireccion(clienteDetailsDTO.getDireccion());
 
-                    Cliente setCliente = clienteService.save(cliente);
-                    return new ResponseEntity<>(setCliente, HttpStatus.OK);
+                    Cliente updateCliente = clienteService.save(cliente);
+
+                    return new ResponseEntity<>(clienteMapper.toResponseDTO(updateCliente), HttpStatus.OK);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

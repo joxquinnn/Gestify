@@ -1,5 +1,7 @@
 package com.Gestify.Backend.entities;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +29,7 @@ public class Cliente {
 
     @Column(length = 255)
     private String direccion;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.REMOVE, orphanRemoval = true) 
+    private List<OrdenDeServicio> ordenesDeServicio;
 }

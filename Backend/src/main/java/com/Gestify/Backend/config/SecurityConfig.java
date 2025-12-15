@@ -38,6 +38,7 @@ public class SecurityConfig {
             // 5. Configuración de autorización
             .authorizeHttpRequests(auth -> {
                 auth
+                    .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()                
                     .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll()
                     // Permitir acceso a todas las rutas que comiencen con /api/ (nuestros controladores)
                     .requestMatchers("/api/**").permitAll() 
