@@ -1,0 +1,62 @@
+/* Hero Section */
+.hero-section {
+    padding-top: 96px; /* Para evitar que el header fijo lo cubra */
+    padding-bottom: 64px;
+    background-color: var(--color-bg-light);
+    text-align: center;
+}
+
+.hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero-title {
+    font-size: 4rem; 
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--color-secondary);
+}
+
+.accent-text {
+    color: var(--color-primary);
+}
+
+.hero-subtitle {
+    margin-top: 16px;
+    font-size: 1.25rem; /* 20px */
+    color: var(--color-text-body);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-group {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.large-button {
+    padding: 12px 32px;
+    font-size: 1.125rem; /* 18px */
+    border-radius: 8px;
+}
+
+.hero-image-placeholder {
+    margin-top: 64px;
+    background-color: var(--color-bg-alt);
+    height: 400px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(0, 123, 255, 0.3);
+}
+
+.placeholder-text {
+    color: var(--color-text-body);
+    font-style: italic;
+}

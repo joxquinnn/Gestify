@@ -1,0 +1,71 @@
+/* Header y Navegación */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    background-color: var(--color-bg-light);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-secondary);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--color-text-body);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* Botones CTA */
+.primary-cta-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 9999px; /* Forma redondeada */
+    color: white;
+    background-color: var(--color-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.primary-cta-button:hover {
+    background-color: #0069d9; /* Tono más oscuro al pasar el ratón */
+    transform: translateY(-1px);
+}
+
+.secondary-cta-button {
+    /* Estilos para el botón "Ver Funcionalidades" */
+    padding: 8px 16px;
+    border: 1px solid var(--color-bg-alt);
+    border-radius: 8px;
+    background-color: var(--color-bg-light);
+    color: var(--color-secondary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
