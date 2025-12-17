@@ -1,192 +1,321 @@
-.orders-container { animation: fadeIn 0.3s ease; }
+.orders-container { 
+  animation: fadeIn 0.3s ease; 
+}
 
 .orders-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .add-order-btn {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
   border: none;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
-/* Píldoras de Estado (Diferentes colores) */
+.add-order-btn::before {
+  content: '📋';
+  font-size: 1.2rem;
+}
+
+.add-order-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* Pills de estado mejorados */
 .status-pill {
-  padding: 5px 12px;
-  border-radius: 15px;
+  padding: 6px 14px;
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
 }
 
-.status-pill.pendiente { background: #fef3c7; color: #92400e; }
-.status-pill.en-proceso { background: #dbeafe; color: #1e40af; }
-.status-pill.terminado { background: #dcfce7; color: #166534; }
-.status-pill.cancelado { background: #f1f5f9; color: #475569; }
+.status-pill.pendiente { 
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e; 
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
 
-.orders-table { width: 100%; border-collapse: collapse; }
-.orders-table th, .orders-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+.status-pill.en-proceso { 
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af; 
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
 
-.action-btn.view { color: var(--color-primary); cursor: pointer; background: none; border: none; font-weight: bold; }
+.status-pill.terminado { 
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534; 
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+}
+
+.status-pill.cancelado { 
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569; 
+  box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+}
+
+/* Tabla mejorada */
+.table-wrapper {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+}
+
+.orders-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+}
+
+.orders-table thead {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.orders-table th {
+  padding: 18px 20px;
+  font-size: 0.85rem;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.orders-table td { 
+  padding: 18px 20px; 
+  border-bottom: 1px solid #f1f5f9; 
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.orders-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.orders-table tbody tr:hover {
+  background: #f8fafc;
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn.view { 
+  color: #2563eb; 
+  cursor: pointer; 
+  background: rgba(37, 99, 235, 0.1);
+  border: none; 
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.action-btn.view:hover {
+  background: #2563eb;
+  color: white;
+  transform: translateY(-2px);
+}
 
 .device-type-tag {
-    background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    color: #64748b;
-    margin-right: 5px;
-    font-weight: bold;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-right: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* --- Estilos del Modal de Detalles --- */
+/* Modal de detalles mejorado */
 .details-modal {
-  max-width: 700px !important;
-  border-left: 8px solid var(--color-primary);
+  max-width: 750px !important;
+  border-left: 6px solid #2563eb;
 }
 
 .details-header-print {
   display: flex;
   justify-content: space-between;
   border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.details-header-print h2 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1e293b;
 }
 
 .details-section {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .details-section h3 {
-  font-size: 0.9rem;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #f1f5f9;
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f1f5f9;
 }
 
 .details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
 .falla-box, .accesorios-box {
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 10px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 18px;
+  border-radius: 12px;
+  margin-top: 15px;
+  border-left: 4px solid #2563eb;
 }
 
 .password-tag {
-  background: #fee2e2;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   color: #991b1b;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp::before {
+  content: '💬';
+  font-size: 1.2rem;
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
 }
 
 .btn-print {
-  background: #0f172a;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
 }
 
-/* --- ESTILOS PARA IMPRESIÓN --- */
-@media print {
-  .no-print, .sidebar, .orders-header, .search-bar-container, .table-wrapper {
-    display: none !important;
-  }
-  
-  .modal-overlay {
-    position: static;
-    background: white;
-  }
-  
-  .modal-content {
-    box-shadow: none;
-    width: 100%;
-    max-width: 100% !important;
-    padding: 0;
-  }
-  
-  .details-modal {
-    border: 1px solid #ccc;
-  }
-}
-
-.status-updater {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-}
-
-.status-updater label {
-  font-size: 0.7rem;
-  font-weight: bold;
-  color: #64748b;
-  text-transform: uppercase;
+.btn-print:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
 }
 
 .status-select {
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 10px 15px;
+  border-radius: 10px;
   font-weight: 700;
   border: 2px solid transparent;
   cursor: pointer;
   outline: none;
+  transition: all 0.2s ease;
 }
 
-/* Colores dinámicos para el select según el estado */
-.status-select.pendiente { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
-.status-select.en-proceso { background: #dbeafe; color: #1e40af; border-color: #3b82f6; }
-.status-select.terminado { background: #dcfce7; color: #166534; border-color: #22c55e; }
-.status-select.cancelado { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+.status-select.pendiente { 
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e; 
+  border-color: #f59e0b; 
+}
 
-/* Ocultar elementos en impresión/pantalla según corresponda */
-.only-print { display: none; }
+.status-select.en-proceso { 
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af; 
+  border-color: #3b82f6; 
+}
+
+.status-select.terminado { 
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534; 
+  border-color: #22c55e; 
+}
+
+.status-select.cancelado { 
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569; 
+  border-color: #cbd5e1; 
+}
+
+/* Modal técnico para nueva orden */
+.technical-modal {
+  max-width: 700px;
+}
+
+.technical-modal .form-grid {
+  gap: 20px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-group textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
 
 @media print {
   .no-print { display: none !important; }
-  .only-print { display: block !important; }
-  .status-pill-print {
-    font-weight: bold;
-    border: 1px solid #000;
-    padding: 5px;
+  .modal-overlay { position: static; background: white; }
+  .modal-content { box-shadow: none; padding: 0; }
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
   }
-}
-
-.btn-whatsapp {
-  background-color: #25d366;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.3s ease;
-}
-
-.btn-whatsapp:hover {
-  background-color: #128c7e;
-}
-
-/* Para ocultar en el papel */
-@media print {
-  .btn-whatsapp { display: none !important; }
 }

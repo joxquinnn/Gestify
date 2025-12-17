@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/OrdersPage.styles.css';
 
-// 1. Interfaz completa con Teléfono
 interface OrdenServicio {
   id: string;
   cliente: string;
@@ -16,48 +15,22 @@ interface OrdenServicio {
   total: number;
 }
 
-const OrdersPage: React.FC = () => {
+interface OrdersProps {
+  ordenes: OrdenServicio[];
+  setOrdenes: React.Dispatch<React.SetStateAction<OrdenServicio[]>>;
+}
+
+const OrdersPage: React.FC<OrdersProps> = ({ ordenes, setOrdenes }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrdenServicio | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Datos de ejemplo iniciales
-  const [ordenes, setOrdenes] = useState<OrdenServicio[]>([
-    { 
-      id: 'OS-1001', 
-      cliente: 'Juan Pérez', 
-      telefono: '56912345678',
-      dispositivo: 'Celular', 
-      marcaModelo: 'iPhone 13', 
-      password: '1234 (L)',
-      fallaReportada: 'Cambio de pantalla, no da imagen.',
-      accesorios: 'Funda roja',
-      estado: 'En Proceso', 
-      fechaIngreso: '2023-10-20', 
-      total: 45000 
-    },
-    { 
-      id: 'OS-1002', 
-      cliente: 'María García', 
-      telefono: '56998765432',
-      dispositivo: 'Notebook', 
-      marcaModelo: 'MacBook Air M1', 
-      password: 'admin',
-      fallaReportada: 'Mantenimiento preventivo y limpieza.',
-      accesorios: 'Cargador original',
-      estado: 'Pendiente', 
-      fechaIngreso: '2023-10-21', 
-      total: 120000 
-    },
-  ]);
 
   const [nuevaOrden, setNuevaOrden] = useState({
     cliente: '', telefono: '', dispositivo: 'Celular', marcaModelo: '',
     password: '', fallaReportada: '', accesorios: '', presupuesto: 0
   });
 
-  // --- FUNCIÓN WHATSAPP ---
   const enviarWhatsApp = (orden: OrdenServicio) => {
     const mensaje = `Hola *${orden.cliente}*, te contactamos de *Servicio Técnico*. 📱%0A%0A` +
                     `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
@@ -65,12 +38,11 @@ const OrdersPage: React.FC = () => {
                     `Total a pagar: $${orden.total.toLocaleString()}%0A` +
                     `¡Te esperamos!`;
 
-    const telLimpio = orden.telefono.replace(/\D/g, ''); // Elimina cualquier cosa que no sea número
+    const telLimpio = orden.telefono.replace(/\D/g, ''); 
     const url = `https://wa.me/${telLimpio}?text=${mensaje}`;
     window.open(url, '_blank');
   };
 
-  // --- CAMBIAR ESTADO DESDE DETALLES ---
   const handleStatusChange = (id: string, nuevoEstado: string) => {
     const nuevasOrdenes = ordenes.map(o => 
       o.id === id ? { ...o, estado: nuevoEstado as any } : o
@@ -82,7 +54,6 @@ const OrdersPage: React.FC = () => {
     }
   };
 
-  // --- GUARDAR NUEVA ORDEN ---
   const handleSaveOrder = (e: React.FormEvent) => {
     e.preventDefault();
     const nuevaOS: OrdenServicio = {

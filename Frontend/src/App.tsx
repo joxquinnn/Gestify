@@ -13,7 +13,7 @@ function App() {
         
         <Route path="/login" element={<LoginPage />} />
         
-        <Route path="/app/*" element={<DashboardLayout />} />
+        <Route path="/dashboard/*" element={<DashboardLayout />} />
         
         <Route path="*" element={<h1>404 | Página No Encontrada</h1>} />
       

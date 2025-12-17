@@ -1,128 +1,130 @@
-/* Header y Navegación */
 .main-header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 10;
-    background-color: var(--color-bg-light);
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
 .header-container {
-    max-width: 2000px; 
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0px 40px; 
-    height: 70px; 
+    padding: 0px 40px;
+    height: 80px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .header-left-group {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 50px;
 }
 
 .logo-image {
-    max-height: 130px; 
-    width: auto; 
+    max-height: 50px;
+    width: auto;
     display: block;
+    transition: all 0.3s ease;
 }
 
-.nav-button {
-    cursor: pointer;
-    text-transform: uppercase;
-    font-weight: 700;
-    font-size: 1rem;
-    padding: 6px 20px;
-    border: none;
-    border-radius: 8px; 
-    transition: all 0.2s ease-out;
+.logo-image:hover {
+    transform: scale(1.05);
 }
 
 .nav-menu {
     display: flex;
-    gap: 20px;
+    gap: 35px;
     align-items: center;
 }
 
 .nav-link {
     text-decoration: none;
-    transition: color 0.15s;
-    color: rgb(65, 64, 64);
-    font-size: 1.1rem; 
-    font-weight: 500;
+    color: #475569;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 8px 0;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+    border-radius: 2px;
 }
 
 .nav-link:hover {
-    color: var(--color-primary);
+    color: #667eea;
 }
 
-/* Botones CTA */
-.primary-cta-button {
-    background-color: var(--color-primary); 
-    color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-}
-
-.primary-cta-button:hover {
-    background-color: #0069d9;
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); 
-}
-
-.primary-cta-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.secondary-cta-button {
-    background-color: var(--color-bg-light);
-    color: var(--color-secondary);
-    border: 1px solid var(--color-bg-alt); 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.secondary-cta-button:hover {
-    background-color: var(--color-bg-alt); 
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-}
-
-.secondary-cta-button:active {
-    transform: translateY(1px); 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+.nav-link:hover::after {
+    width: 100%;
 }
 
 .header-right-group {
     display: flex;
     align-items: center;
-    gap: 20px; 
+    gap: 20px;
 }
 
-.login-register-button-link {
-    padding: 6px 16px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-}
-
-.login-button {
-    padding: 7px 16px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-primary); 
+.nav-button {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .login-link {
-    color: var(--color-secondary);
+    color: #667eea;
     text-decoration: none;
     font-weight: 700;
-    font-size: 1rem;
-    padding: 12px 0;
-    transition: color 0.2s;
-    text-transform: uppercase;
+    font-size: 0.95rem;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+    border-radius: 10px;
 }
 
 .login-link:hover {
-    color: var(--color-primary);
+    background: rgba(102, 126, 234, 0.1);
+    color: #764ba2;
+}
+
+.primary-cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.primary-cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-cta-button {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.secondary-cta-button:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
 }

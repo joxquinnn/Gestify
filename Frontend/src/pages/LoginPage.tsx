@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
         if (email === 'demo@gestify.com' && password === '123456') {
             alert('¡Inicio de sesión exitoso!');
             // Redirigir al Dashboard principal
-            navigate('/app/clientes'); 
+            navigate('/dashboard/inicio'); 
         } else {
             alert('Credenciales incorrectas. Usa demo@gestify.com / 123456');
         }

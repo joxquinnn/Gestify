@@ -1,14 +1,53 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-const Sidebar: React.FC = () => (
-    <aside className="sidebar">
-        <div className="sidebar-logo">GESTIFY APP</div>
-        <nav>
-            <Link to="/app/clientes" className="sidebar-link">Clientes</Link>
-            <Link to="/app/ordenes" className="sidebar-link">Órdenes</Link>
-            <Link to="/app/configuracion" className="sidebar-link">Configuración</Link>
-        </nav>
-    </aside>
-);
+const Sidebar: React.FC = () => {
+    return (
+        <aside className="sidebar">
+            <div className="sidebar-logo">
+                ⚙️ Gestify
+            </div>
+            
+            <nav>
+                <NavLink 
+                    to="/dashboard/inicio" 
+                    className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                >
+                    <span className="sidebar-link-icon">🏠</span>
+                    <span>Inicio</span>
+                </NavLink>
+                
+                <NavLink 
+                    to="/dashboard/ordenes" 
+                    className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                >
+                    <span className="sidebar-link-icon">📋</span>
+                    <span>Órdenes</span>
+                </NavLink>
+                
+                <NavLink 
+                    to="/dashboard/clientes" 
+                    className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                >
+                    <span className="sidebar-link-icon">👥</span>
+                    <span>Clientes</span>
+                </NavLink>
+                
+                <NavLink 
+                    to="/dashboard/configuracion" 
+                    className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                >
+                    <span className="sidebar-link-icon">⚙️</span>
+                    <span>Configuración</span>
+                </NavLink>
+            </nav>
+
+            {/* Opcional: Footer del sidebar */}
+            <div className="sidebar-footer">
+                © 2024 Gestify
+            </div>
+        </aside>
+    );
+};
+
 export default Sidebar;
