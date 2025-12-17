@@ -2,25 +2,39 @@
 import React from 'react';
 import '../styles/Header.styles.css'; 
 
-// Usamos React.FC (Functional Component) para el tipado.
 const Header: React.FC = () => {
   return (
     <header className="main-header">
       <div className="header-container">
         
-        <div className="logo">
-          <span className="logo-text">GESTIFY</span>
+        <div className="header-left-group"> 
+          
+          <div className="logo">
+            <img
+              src="/images/Gestify-logo-empresa.png"
+              alt="Gestify - Control y Eficiencia"
+              className="logo-image"
+            /> 
+          </div>
+
+          <nav className="nav-menu">
+            <a href="#features" className="nav-link">FUNCIONALIDADES</a>
+            <a href="#pricing" className="nav-link">PRECIOS</a>
+          </nav>
         </div>
 
-        <nav className="nav-menu">
-          <a href="#features" className="nav-link">Funcionalidades</a>
-          <a href="#pricing" className="nav-link">Precios</a>
-          <a href="#contact" className="nav-link">Contacto</a>
+        <div className="header-right-group">
           
-          <button className="nav-button primary-cta-button">
-            Iniciar Sesión
+          <a href="/login" className="login-link">LOG IN</a>
+
+          <button className="nav-button secondary-cta-button request-tour-button">
+            PRODUCT TOUR
           </button>
-        </nav>
+          
+          <button className="nav-button primary-cta-button request-tour-button">
+            REQUEST A DEMO
+          </button>
+        </div>
       </div>
     </header>
   );

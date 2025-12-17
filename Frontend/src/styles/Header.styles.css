@@ -6,35 +6,52 @@
     width: 100%;
     z-index: 10;
     background-color: var(--color-bg-light);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
-    max-width: 1200px;
+    max-width: 2000px; 
     margin: 0 auto;
-    padding: 0 20px;
-    height: 64px;
+    padding: 0px 40px; 
+    height: 70px; 
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.logo-text {
-    font-size: 24px;
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo-image {
+    max-height: 130px; 
+    width: auto; 
+    display: block;
+}
+
+.nav-button {
+    cursor: pointer;
+    text-transform: uppercase;
     font-weight: 700;
-    color: var(--color-secondary);
+    font-size: 1rem;
+    padding: 6px 20px;
+    border: none;
+    border-radius: 8px; 
+    transition: all 0.2s ease-out;
 }
 
 .nav-menu {
     display: flex;
-    gap: 32px;
+    gap: 20px;
     align-items: center;
 }
 
 .nav-link {
-    color: var(--color-text-body);
     text-decoration: none;
     transition: color 0.15s;
+    color: rgb(65, 64, 64);
+    font-size: 1.1rem; 
+    font-weight: 500;
 }
 
 .nav-link:hover {
@@ -43,29 +60,69 @@
 
 /* Botones CTA */
 .primary-cta-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 9999px; /* Forma redondeada */
+    background-color: var(--color-primary); 
     color: white;
-    background-color: var(--color-primary);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 }
 
 .primary-cta-button:hover {
-    background-color: #0069d9; /* Tono más oscuro al pasar el ratón */
-    transform: translateY(-1px);
+    background-color: #0069d9;
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); 
+}
+
+.primary-cta-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .secondary-cta-button {
-    /* Estilos para el botón "Ver Funcionalidades" */
-    padding: 8px 16px;
-    border: 1px solid var(--color-bg-alt);
-    border-radius: 8px;
     background-color: var(--color-bg-light);
     color: var(--color-secondary);
-    font-weight: 600;
+    border: 1px solid var(--color-bg-alt); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.secondary-cta-button:hover {
+    background-color: var(--color-bg-alt); 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.secondary-cta-button:active {
+    transform: translateY(1px); 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+}
+
+.header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+.request-tour-button {
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+}
+
+.login-button {
+    padding: 7px 16px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-primary); 
+}
+
+.login-link {
+    color: var(--color-secondary);
     text-decoration: none;
-    transition: background-color 0.3s;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 0;
+    transition: color 0.2s;
+    text-transform: uppercase;
+}
+
+.login-link:hover {
+    color: var(--color-primary);
 }
