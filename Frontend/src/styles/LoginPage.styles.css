@@ -1,0 +1,88 @@
+.login-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--color-bg-alt); 
+}
+
+.login-card {
+    background-color: var(--color-bg-light);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; 
+    text-align: center;
+}
+
+.login-logo-image {
+    max-height: 45px;
+    margin-bottom: 20px;
+}
+
+.login-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-secondary);
+    margin-bottom: 5px;
+}
+
+.login-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-body);
+    margin-bottom: 30px;
+}
+
+/* ---------------------------------- */
+/* Formulario */
+/* ---------------------------------- */
+
+.login-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary);
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-bg-alt);
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box; 
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.form-options {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 25px;
+}
+
+.forgot-password-link {
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.login-button {
+    width: 100%;
+    padding: 12px; 
+}

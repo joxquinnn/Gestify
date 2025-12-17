@@ -1,0 +1,48 @@
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-alt);
+}
+
+/* --- Sidebar --- */
+
+.sidebar {
+    width: 250px;
+    background-color: var(--color-secondary);
+    color: white;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-link {
+    color: var(--color-text-body); 
+    text-decoration: none;
+    padding: 12px 20px;
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.1); 
+    color: white;
+}
+
+/* --- Contenido Principal --- */
+
+.dashboard-content {
+    flex-grow: 1; 
+    padding: 30px;
+    overflow-y: auto; 
+}

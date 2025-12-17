@@ -1,23 +1,24 @@
-import React from 'react';
-import Header from './components/Header'; 
-import HeroSection from './components/HeroSection'; 
-import FeaturesSection from './components/FeaturesSection'; 
-import PricingSection from './components/PricingSection';
-import CTABlock from './components/CTABlock';
-import Footer from './components/Footer';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import Homepage from './pages/Homepage'; 
+import LoginPage from './pages/LoginPage';
+import DashboardLayout from './pages/dashboard/DashboardLayout'; // La ruta principal de la app
 
 function App() {
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main>
-        <HeroSection />
-        <FeaturesSection /> 
-        <PricingSection />
-        <CTABlock />
-      </main>
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        
+        <Route path="/" element={<Homepage />} />
+        
+        <Route path="/login" element={<LoginPage />} />
+        
+        <Route path="/app/*" element={<DashboardLayout />} />
+        
+        <Route path="*" element={<h1>404 | Página No Encontrada</h1>} />
+      
+      </Routes>
+    </BrowserRouter>
   );
 }
 
