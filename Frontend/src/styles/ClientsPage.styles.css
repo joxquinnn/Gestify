@@ -1,0 +1,192 @@
+.clients-container {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.clients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  color: var(--color-secondary);
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.page-subtitle {
+  color: var(--color-text-body);
+  font-size: 0.95rem;
+}
+
+.add-client-btn {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.add-client-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Tabla */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.clients-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.clients-table th {
+  background-color: #f8fafc;
+  padding: 15px;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.clients-table td {
+  padding: 15px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+/* Badges de Estado */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.activo {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.inactivo {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Acciones */
+.action-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.action-btn.edit { color: var(--color-primary); }
+.action-btn.delete { color: #ef4444; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Estilos del Modal --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  color: var(--color-secondary);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+/* En móviles o pantallas pequeñas, una sola columna */
+@media (max-width: 480px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel {
+  background: #e2e8f0;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-save {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* --- Estilos de la Barra de Búsqueda --- */
+.search-bar-container {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
