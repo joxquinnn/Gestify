@@ -17,13 +17,28 @@ interface OrdenServicio {
   total: number;
 }
 
+const OPCIONES_ESTADO = [
+  "Rayones leves", "Pantalla trizada", "Golpes en bordes",
+  "Cámara rayada", "Sin botones", "Tapa trasera rota",
+  "Con protector", "Con funda", "Humedad visible"
+];
+
 const OrdersPage: React.FC = () => {
   const { ordenes, setOrdenes, clientes, configuracion, actualizarOrden, eliminarOrden } = useAppContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrdenServicio | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [accesoriosSeleccionados, setAccesoriosSeleccionados] = useState<string[]>([]);
+
+  const handleCheckboxChange = (opcion: string) => {
+    setAccesoriosSeleccionados(prev =>
+      prev.includes(opcion)
+        ? prev.filter(item => item !== opcion)
+        : [...prev, opcion]
+    );
+  };
+
   // NUEVAS VARIABLES DE ESTADO (Sin tocar interfaz)
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'activas' | 'finalizadas'>('activas');
@@ -44,11 +59,11 @@ const OrdersPage: React.FC = () => {
 
   const enviarWhatsApp = (orden: OrdenServicio) => {
     const mensaje = `Hola *${orden.cliente}*, te contactamos de *Servicio Técnico*. 📱%0A%0A` +
-                    `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
-                    `se encuentra en estado: *${orden.estado}*.%0A%0A` +
-                    `Total a pagar: $${orden.total.toLocaleString()}%0A` +
-                    `¡Te esperamos!`;
-    const telLimpio = orden.telefono.replace(/\D/g, ''); 
+      `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
+      `se encuentra en estado: *${orden.estado}*.%0A%0A` +
+      `Total a pagar: $${orden.total.toLocaleString()}%0A` +
+      `¡Te esperamos!`;
+    const telLimpio = orden.telefono.replace(/\D/g, '');
     window.open(`https://wa.me/${telLimpio}?text=${mensaje}`, '_blank');
   };
 
@@ -70,16 +85,17 @@ const OrdersPage: React.FC = () => {
       marcaModelo: nuevaOrden.marcaModelo,
       password: nuevaOrden.password,
       fallaReportada: nuevaOrden.fallaReportada,
-      accesorios: nuevaOrden.accesorios,
+      accesorios: accesoriosSeleccionados.join(', '),
       estado: 'Pendiente',
       fechaIngreso: new Date().toISOString().split('T')[0],
       total: nuevaOrden.presupuesto
     };
+    setAccesoriosSeleccionados([]);
     setOrdenes([nuevaOS, ...ordenes]);
     setIsModalOpen(false);
     setNuevaOrden({
-        cliente: '', telefono: '', dispositivo: 'Celular', marcaModelo: '',
-        password: '', fallaReportada: '', accesorios: '', presupuesto: 0
+      cliente: '', telefono: '', dispositivo: 'Celular', marcaModelo: '',
+      password: '', fallaReportada: '', accesorios: '', presupuesto: 0
     });
   };
 
@@ -99,10 +115,10 @@ const OrdersPage: React.FC = () => {
 
   // FILTRADO: Agregamos la lógica de pestañas a tu filtro original
   const ordenesFiltradas = ordenes.filter(o => {
-    const matchesSearch = o.cliente.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          o.marcaModelo.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = o.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.marcaModelo.toLowerCase().includes(searchTerm.toLowerCase());
+
     if (activeTab === 'activas') {
       return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
     }
@@ -151,11 +167,11 @@ const OrdersPage: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label>WhatsApp (Autocompletado)</label>
-                  <input type="text" readOnly value={nuevaOrden.telefono} style={{backgroundColor: '#f8fafc', cursor: 'not-allowed'}} />
+                  <input type="text" readOnly value={nuevaOrden.telefono} style={{ backgroundColor: '#f8fafc', cursor: 'not-allowed' }} />
                 </div>
                 <div className="form-group">
                   <label>Tipo de Equipo</label>
-                  <select value={nuevaOrden.dispositivo} onChange={(e) => setNuevaOrden({...nuevaOrden, dispositivo: e.target.value})}>
+                  <select value={nuevaOrden.dispositivo} onChange={(e) => setNuevaOrden({ ...nuevaOrden, dispositivo: e.target.value })}>
                     <option value="Celular">Celular</option>
                     <option value="Notebook">Notebook</option>
                     <option value="Desktop">Desktop</option>
@@ -164,23 +180,42 @@ const OrdersPage: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label>Marca y Modelo</label>
-                  <input type="text" required value={nuevaOrden.marcaModelo} onChange={(e) => setNuevaOrden({...nuevaOrden, marcaModelo: e.target.value})}/>
+                  <input type="text" required value={nuevaOrden.marcaModelo} onChange={(e) => setNuevaOrden({ ...nuevaOrden, marcaModelo: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Patrón / Contraseña</label>
-                  <input type="text" value={nuevaOrden.password} onChange={(e) => setNuevaOrden({...nuevaOrden, password: e.target.value})}/>
+                  <input type="text" value={nuevaOrden.password} onChange={(e) => setNuevaOrden({ ...nuevaOrden, password: e.target.value })} />
                 </div>
                 <div className="form-group">
                   <label>Costo Reparación</label>
-                  <input type="number" value={nuevaOrden.presupuesto} onChange={(e) => setNuevaOrden({...nuevaOrden, presupuesto: Number(e.target.value)})}/>
+                  <input type="number" value={nuevaOrden.presupuesto} onChange={(e) => setNuevaOrden({ ...nuevaOrden, presupuesto: Number(e.target.value) })} />
                 </div>
                 <div className="form-group full-width">
-                  <label>Falla Reportada</label>
-                  <textarea required value={nuevaOrden.fallaReportada} onChange={(e) => setNuevaOrden({...nuevaOrden, fallaReportada: e.target.value})}></textarea>
+                  <label>Servicio Requerido</label>
+                  <textarea required value={nuevaOrden.fallaReportada} onChange={(e) => setNuevaOrden({ ...nuevaOrden, fallaReportada: e.target.value })}></textarea>
                 </div>
                 <div className="form-group full-width">
-                  <label>Accesorios / Observaciones</label>
-                  <input type="text" value={nuevaOrden.accesorios} onChange={(e) => setNuevaOrden({...nuevaOrden, accesorios: e.target.value})}/>
+                  <label style={{ marginBottom: '10px', display: 'block' }}>Estado Físico / Accesorios</label>
+                  <div className="checklist-container">
+                    {OPCIONES_ESTADO.map(opcion => (
+                      <label key={opcion} className="checklist-item">
+                        <input
+                          type="checkbox"
+                          checked={accesoriosSeleccionados.includes(opcion)}
+                          onChange={() => handleCheckboxChange(opcion)}
+                        />
+                        <span>{opcion}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Otras observaciones específicas..."
+                    className="mt-10"
+                    onChange={(e) => {
+                      if (e.target.value) setNuevaOrden({ ...nuevaOrden, accesorios: e.target.value })
+                    }}
+                  />
                 </div>
               </div>
               <div className="modal-actions">
@@ -192,7 +227,7 @@ const OrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* --- MODAL DETALLES CORREGIDO --- */}
+      {/* --- MODAL DETALLES --- */}
       {isDetailsOpen && selectedOrder && (
         <div className="modal-overlay">
           <div className="modal-content details-modal">
@@ -204,8 +239,8 @@ const OrdersPage: React.FC = () => {
               <div className="status-updater no-print" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 <div>
                   <label>Estado Actual:</label>
-                  <select 
-                    value={selectedOrder.estado} 
+                  <select
+                    value={selectedOrder.estado}
                     className={`status-select ${selectedOrder.estado.toLowerCase().replace(/\s+/g, '-')}`}
                     onChange={(e) => handleStatusChange(selectedOrder.id, e.target.value)}
                   >
@@ -215,9 +250,9 @@ const OrdersPage: React.FC = () => {
                     <option value="Cancelado">Cancelado</option>
                   </select>
                 </div>
-                
+
                 {/* Botón Eliminar Rojo y Visible */}
-                <button className="btn-delete-order" onClick={() => { if(window.confirm("¿Estás seguro de eliminar esta orden permanentemente?")) { eliminarOrden(selectedOrder.id); setIsDetailsOpen(false); } }}>
+                <button className="btn-delete-order" onClick={() => { if (window.confirm("¿Estás seguro de eliminar esta orden permanentemente?")) { eliminarOrden(selectedOrder.id); setIsDetailsOpen(false); } }}>
                   🗑️ Eliminar
                 </button>
               </div>
@@ -227,14 +262,14 @@ const OrdersPage: React.FC = () => {
               <section className="details-section">
                 <h3>Cliente: {selectedOrder.cliente}</h3>
                 <p><strong>WhatsApp:</strong> {selectedOrder.telefono}</p>
-                <div className="details-grid" style={{marginTop: '10px'}}>
+                <div className="details-grid" style={{ marginTop: '10px' }}>
                   <p>
-                    <strong>Equipo:</strong> {selectedOrder.dispositivo} - 
+                    <strong>Equipo:</strong> {selectedOrder.dispositivo} -
                     {isEditing ? (
-                      <input 
+                      <input
                         className="edit-mode-input"
                         value={selectedOrder.marcaModelo}
-                        onChange={(e) => setSelectedOrder({...selectedOrder, marcaModelo: e.target.value})}
+                        onChange={(e) => setSelectedOrder({ ...selectedOrder, marcaModelo: e.target.value })}
                       />
                     ) : (
                       <span> {selectedOrder.marcaModelo}</span>
@@ -242,17 +277,33 @@ const OrdersPage: React.FC = () => {
                   </p>
                   <p><strong>Clave:</strong> <span className="password-tag">{selectedOrder.password || 'Sin clave'}</span></p>
                 </div>
+                <div className="accesorios-box" style={{ marginTop: '15px', padding: '12px', background: '#f8fafc', borderRadius: '8px', borderLeft: '4px solid #64748b' }}>
+                  <strong style={{ fontSize: '0.9rem', color: '#475569' }}>Estado Físico / Accesorios:</strong>
+                  {isEditing ? (
+                    <input
+                      className="edit-mode-input"
+                      style={{ marginTop: '5px' }}
+                      value={selectedOrder.accesorios}
+                      onChange={(e) => setSelectedOrder({ ...selectedOrder, accesorios: e.target.value })}
+                      placeholder="Ej: Rayones, Pantalla trizada..."
+                    />
+                  ) : (
+                    <p style={{ margin: '5px 0 0 0', fontWeight: '500', color: '#1e293b' }}>
+                      {selectedOrder.accesorios || 'Ninguno reportado'}
+                    </p>
+                  )}
+                </div>
               </section>
 
               <section className="details-section">
                 <div className="falla-box">
                   <strong>Falla Reportada:</strong>
                   {isEditing ? (
-                    <textarea 
+                    <textarea
                       className="edit-mode-input"
                       style={{ marginTop: '10px', height: '60px' }}
                       value={selectedOrder.fallaReportada}
-                      onChange={(e) => setSelectedOrder({...selectedOrder, fallaReportada: e.target.value})}
+                      onChange={(e) => setSelectedOrder({ ...selectedOrder, fallaReportada: e.target.value })}
                     />
                   ) : (
                     <p>{selectedOrder.fallaReportada}</p>
@@ -261,16 +312,16 @@ const OrdersPage: React.FC = () => {
               </section>
 
               {/* Total con formato original restaurado */}
-              <div style={{textAlign: 'right', marginTop: '20px'}}>
+              <div style={{ textAlign: 'right', marginTop: '20px' }}>
                 <h3 style={{ margin: 0 }}>
-                  Total a Pagar: 
+                  Total a Pagar:
                   {isEditing ? (
-                    <input 
+                    <input
                       type="number"
                       className="edit-mode-input"
                       style={{ width: '120px', marginLeft: '10px', fontSize: '1.2rem' }}
                       value={selectedOrder.total}
-                      onChange={(e) => setSelectedOrder({...selectedOrder, total: Number(e.target.value)})}
+                      onChange={(e) => setSelectedOrder({ ...selectedOrder, total: Number(e.target.value) })}
                     />
                   ) : (
                     <span style={{ color: '#007bff', marginLeft: '10px' }}> ${selectedOrder.total.toLocaleString()}</span>
@@ -287,7 +338,7 @@ const OrdersPage: React.FC = () => {
               )}
               <button className="btn-whatsapp" onClick={() => enviarWhatsApp(selectedOrder)}>Notificar WhatsApp</button>
               <button className="btn-print" onClick={() => generarPDFOrden(selectedOrder, configuracion)}>Descargar PDF</button>
-              <button className="btn-cancel" onClick={() => {setIsDetailsOpen(false); setIsEditing(false);}}>Cerrar</button>
+              <button className="btn-cancel" onClick={() => { setIsDetailsOpen(false); setIsEditing(false); }}>Cerrar</button>
             </div>
           </div>
         </div>

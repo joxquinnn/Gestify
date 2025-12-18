@@ -1,33 +1,41 @@
-// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/LoginPage.styles.css'; 
+import '../styles/LoginPage.styles.css';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/axiosConfig';
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     
+    const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        console.log('Intentando iniciar sesión con:', { email, password });
-        
-        if (email === 'demo@gestify.com' && password === '123456') {
-            alert('¡Inicio de sesión exitoso!');
-            // Redirigir al Dashboard principal
-            navigate('/dashboard/inicio'); 
-        } else {
-            alert('Credenciales incorrectas. Usa demo@gestify.com / 123456');
+        setError(null);
+        setIsLoading(true);
+
+        try {
+            const response = await api.post('/auth/login', { email, password });
+            
+            login(response.data); 
+
+            navigate('/dashboard/inicio');
+        } catch (err: any) {
+            const message = err.response?.data?.message || 'Error al conectar con el servidor';
+            setError(message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="login-page-wrapper">
             <div className="login-card">
-                
-                <img 
+                <img
                     src="/images/Gestify-logo-empresa.png"
                     alt="Gestify Logo"
                     className="login-logo-image"
@@ -36,8 +44,9 @@ const LoginPage: React.FC = () => {
                 <h1 className="login-title">Accede a tu cuenta de Gestify</h1>
                 <p className="login-subtitle">Introduce tus credenciales para continuar con la gestión.</p>
 
+                {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+
                 <form className="login-form" onSubmit={handleSubmit}>
-                    
                     <div className="form-group">
                         <label htmlFor="email">Email</label>
                         <input
@@ -45,10 +54,11 @@ const LoginPage: React.FC = () => {
                             id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={isLoading}
                             required
                         />
                     </div>
-                    
+
                     <div className="form-group">
                         <label htmlFor="password">Contraseña</label>
                         <input
@@ -56,20 +66,23 @@ const LoginPage: React.FC = () => {
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={isLoading}
                             required
                         />
                     </div>
 
                     <div className="form-options">
-                        <a href="/reset-password" className="forgot-password-link">¿Olvidaste tu contraseña?</a>
+                        <a href="/reset-password" alt-forgot className="forgot-password-link">¿Olvidaste tu contraseña?</a>
                     </div>
-                    
-                    <button type="submit" className="login-button primary-cta-button">
-                        Iniciar Sesión
-                    </button>
-                    
-                </form>
 
+                    <button 
+                        type="submit" 
+                        className="login-button primary-cta-button"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
+                    </button>
+                </form>
             </div>
         </div>
     );

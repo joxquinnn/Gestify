@@ -1,7 +1,9 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useLocation} from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
+    const location = useLocation();
+
     return (
         <aside className="sidebar">
             <div className="sidebar-logo">
@@ -16,6 +18,14 @@ const Sidebar: React.FC = () => {
                     <span className="sidebar-link-icon">🏠</span>
                     <span>Inicio</span>
                 </NavLink>
+
+                <NavLink 
+                    to="/dashboard/clientes" 
+                    className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
+                >
+                    <span className="sidebar-link-icon">👥</span>
+                    <span>Clientes</span>
+                </NavLink>
                 
                 <NavLink 
                     to="/dashboard/ordenes" 
@@ -24,13 +34,13 @@ const Sidebar: React.FC = () => {
                     <span className="sidebar-link-icon">📋</span>
                     <span>Órdenes</span>
                 </NavLink>
-                
+
                 <NavLink 
-                    to="/dashboard/clientes" 
+                    to="/dashboard/reportes" 
                     className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}
                 >
-                    <span className="sidebar-link-icon">👥</span>
-                    <span>Clientes</span>
+                    <span className="sidebar-link-icon">📊</span>
+                    <span>Reportes y Caja</span>
                 </NavLink>
                 
                 <NavLink 
@@ -44,7 +54,7 @@ const Sidebar: React.FC = () => {
 
             {/* Opcional: Footer del sidebar */}
             <div className="sidebar-footer">
-                © 2024 Gestify
+                © 2025 Gestify
             </div>
         </aside>
     );
