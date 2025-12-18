@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ordenes")
-@CrossOrigin(origins = "http://localhost:5173")
 public class OrdenDeServicioController {
 
     private final OrdenDeServicioService ordenService;
