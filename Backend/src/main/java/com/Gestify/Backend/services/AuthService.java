@@ -6,6 +6,7 @@ import com.Gestify.Backend.dtos.AuthResponseDTO;
 import com.Gestify.Backend.entities.Usuario;
 import com.Gestify.Backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,9 @@ public class AuthService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void registrarUsuario(RegistroDTO dto) throws Exception {
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
@@ -22,7 +26,8 @@ public class AuthService {
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
-        usuario.setPassword(dto.getPassword()); 
+        
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         
         usuarioRepository.save(usuario);
     }
@@ -31,12 +36,11 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new Exception("Usuario no encontrado"));
 
-        if (!usuario.getPassword().equals(dto.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
             throw new Exception("Contraseña incorrecta");
         }
 
         String tokenSimulado = "jwt-token-generado-para-" + usuario.getEmail();
-        
         return new AuthResponseDTO(tokenSimulado, usuario.getEmail(), usuario.getNombre());
     }
 }

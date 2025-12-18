@@ -2,73 +2,85 @@ package com.Gestify.Backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity; // Opcional, pero bueno para asegurar
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration; 
-import org.springframework.web.cors.CorsConfigurationSource; 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        
-        http
-            // 1. Deshabilitar CSRF (Crucial para APIs REST que no usan sesiones)
-            .csrf(csrf -> csrf.disable())
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-            // 2. Deshabilitar la autenticación basada en formulario (Adiós al "Please sign in")
-            .formLogin(formLogin -> formLogin.disable())
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            // Deshabilitar CSRF (necesario para APIs REST)
+            .csrf(csrf -> csrf.disable())
             
-            // 3. Deshabilitar la autenticación HTTP básica 
+            // Deshabilitar form login y http basic
+            .formLogin(formLogin -> formLogin.disable())
             .httpBasic(httpBasic -> httpBasic.disable())
             
-            .cors(Customizer.withDefaults())
-            // 4. Configurar política de sesión como STATELESS (Sin estado, como debe ser una API REST)
+            // Habilitar CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // Configurar sesiones como STATELESS (sin sesión en servidor)
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             
-            // 5. Configuración de autorización
-            .authorizeHttpRequests(auth -> {
-                auth
-                    .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()                
-                    .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll()
-                    // Permitir acceso a todas las rutas que comiencen con /api/ (nuestros controladores)
-                    .requestMatchers("/api/**").permitAll() 
-                    
-                    // Cualquier otra petición (como / o recursos estáticos) requiere autenticación 
-                    // (aunque con todo deshabilitado, esto es más bien un requisito formal)
-                    .anyRequest().authenticated(); 
-            });
+            // Configurar autorización de endpoints
+            .authorizeHttpRequests(auth -> auth
+                // Permitir acceso sin autenticación a estos endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                
+                .requestMatchers("/api/**").permitAll()
+                
+                .anyRequest().authenticated()
+            );
 
         return http.build();
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Configura los orígenes permitidos
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173")); 
         
-        // Configura los métodos HTTP permitidos
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Orígenes permitidos
+        configuration.setAllowedOriginPatterns(List.of("*")); // Permite cualquier origen temporalmente
+        // En producción usa: configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         
-        // Permite la credenciales (si usaras cookies o headers de auth)
-        configuration.setAllowCredentials(true); 
-
-        // Configura los headers permitidos
-        configuration.setAllowedHeaders(Arrays.asList("*")); 
+        // Métodos HTTP permitidos
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        
+        // Headers permitidos
+        configuration.setAllowedHeaders(List.of("*"));
+        
+        // Permitir credenciales
+        configuration.setAllowCredentials(true);
+        
+        // Headers expuestos
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        
+        // Tiempo de cache para preflight requests
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+        
         return source;
     }
 }

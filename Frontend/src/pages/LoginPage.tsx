@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.styles.css';
 import { useAuth } from '../context/AuthContext';
@@ -10,22 +10,83 @@ const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            console.log('✅ Usuario autenticado, redirigiendo a dashboard...');
+            navigate('/dashboard/inicio', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);
 
-        try {
-            const response = await api.post('/auth/login', { email, password });
-            
-            login(response.data); 
+        console.log('🔐 Iniciando login...');
+        console.log('📧 Email:', email);
+        console.log('🌐 Backend URL:', api.defaults.baseURL);
 
-            navigate('/dashboard/inicio');
+        try {
+            console.log('📤 Enviando petición a:', `${api.defaults.baseURL}/api/auth/login`);
+            
+            const response = await api.post('/api/auth/login', { 
+                email, 
+                password 
+            });
+            
+            console.log('✅ Respuesta recibida:', response.data);
+
+            const adaptedData = {
+                user: {
+                    email: response.data.email,
+                    nombre: response.data.nombre
+                },
+                token: response.data.token
+            };
+
+            console.log('🔄 Datos adaptados:', adaptedData);
+            login(adaptedData);
+
+            console.log('🚀 Navegando a dashboard...');
+            setTimeout(() => {
+                navigate('/dashboard/inicio', { replace: true });
+            }, 100);
+
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Error al conectar con el servidor';
+            console.error('❌ ERROR COMPLETO:', err);
+            
+            let message = 'Error al conectar con el servidor';
+            
+            // Sin response = backend no disponible
+            if (!err.response) {
+                message = 'No se puede conectar al servidor. Verifica que el backend esté corriendo en http://localhost:8080';
+            }
+            // 403 = CORS o Spring Security bloqueando
+            else if (err.response?.status === 403) {
+                message = 'Acceso prohibido (403). Verifica la configuración de CORS en el backend.';
+            }
+            // 401 = Credenciales incorrectas
+            else if (err.response?.status === 401) {
+                message = err.response.data || 'Email o contraseña incorrectos';
+            }
+            // 404 = Endpoint no existe
+            else if (err.response?.status === 404) {
+                message = 'Endpoint no encontrado. Verifica que /api/auth/login exista en el backend.';
+            }
+            // 500 = Error interno del servidor
+            else if (err.response?.status === 500) {
+                message = 'Error interno del servidor. Revisa los logs del backend.';
+            }
+            // Otros errores
+            else if (err.response?.data) {
+                message = typeof err.response.data === 'string' 
+                    ? err.response.data 
+                    : err.response.data.message || message;
+            }
+            
             setError(message);
         } finally {
             setIsLoading(false);
@@ -44,7 +105,11 @@ const LoginPage: React.FC = () => {
                 <h1 className="login-title">Accede a tu cuenta de Gestify</h1>
                 <p className="login-subtitle">Introduce tus credenciales para continuar con la gestión.</p>
 
-                {error && <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+                {error && (
+                    <div className="error-message">
+                        ⚠️ {error}
+                    </div>
+                )}
 
                 <form className="login-form" onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -56,6 +121,7 @@ const LoginPage: React.FC = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             disabled={isLoading}
                             required
+                            placeholder="usuario@ejemplo.com"
                         />
                     </div>
 
@@ -68,11 +134,15 @@ const LoginPage: React.FC = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={isLoading}
                             required
+                            placeholder="••••••••"
+                            minLength={6}
                         />
                     </div>
 
                     <div className="form-options">
-                        <a href="/reset-password" alt-forgot className="forgot-password-link">¿Olvidaste tu contraseña?</a>
+                        <a href="/reset-password" className="forgot-password-link">
+                            ¿Olvidaste tu contraseña?
+                        </a>
                     </div>
 
                     <button 
@@ -80,8 +150,23 @@ const LoginPage: React.FC = () => {
                         className="login-button primary-cta-button"
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
+                        {isLoading ? (
+                            <>
+                                <span className="spinner"></span>
+                                Cargando...
+                            </>
+                        ) : (
+                            'Iniciar Sesión'
+                        )}
                     </button>
+
+                    <div className="login-divider">
+                        <span>o</span>
+                    </div>
+
+                    <div className="login-footer">
+                        ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+                    </div>
                 </form>
             </div>
         </div>

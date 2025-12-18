@@ -1,6 +1,6 @@
 // src/pages/dashboard/DashboardLayout.tsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from '../../components/dashboard/Sidebar';
 import DashboardPage from './DashboardPage';
 import OrdersPage from './OrdersPage';
@@ -21,6 +21,9 @@ const DashboardLayout: React.FC = () => {
           <Route path="clientes" element={<ClientsPage />} />
           <Route path="reportes" element={<ReportsPage />} />
           <Route path="configuracion" element={<SettingsPage />} />
+
+          {/* Redirigir cualquier sub-ruta desconocida a inicio */}
+          <Route path="*" element={<Navigate to="inicio" replace />} />
         </Routes>
       </main>
     </div>
