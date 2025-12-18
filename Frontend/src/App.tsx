@@ -21,17 +21,6 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 
 // Componente para rutas públicas (login/register)
 // Si el usuario ya está autenticado, lo redirige al dashboard
-const PublicRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <div className="loading-screen">Cargando...</div>; 
-  }
-
-  // Si ya está autenticado, redirigir al dashboard en lugar de mostrar login/register
-  return isAuthenticated ? <Navigate to="/dashboard/inicio" replace /> : children;
-};
-
 function App() {
   return (
     <AuthProvider>

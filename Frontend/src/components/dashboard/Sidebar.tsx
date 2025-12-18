@@ -1,8 +1,7 @@
 import React from 'react';
-import { NavLink, Link, useLocation} from 'react-router-dom';
+import { NavLink} from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
-    const location = useLocation();
 
     return (
         <aside className="sidebar">
