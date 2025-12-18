@@ -59,7 +59,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Orígenes permitidos
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "https://appealing-tranquility-production-3da9.up.railway.app" 
+        ));
 
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -71,7 +74,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
 
         // Headers expuestos
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
         // Tiempo de cache para preflight requests
         configuration.setMaxAge(3600L);
