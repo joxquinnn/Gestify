@@ -26,32 +26,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Deshabilitar CSRF (necesario para APIs REST)
-            .csrf(csrf -> csrf.disable())
-            
-            // Deshabilitar form login y http basic
-            .formLogin(formLogin -> formLogin.disable())
-            .httpBasic(httpBasic -> httpBasic.disable())
-            
-            // Habilitar CORS
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Configurar sesiones como STATELESS (sin sesión en servidor)
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // Configurar autorización de endpoints
-            .authorizeHttpRequests(auth -> auth
-                // Permitir acceso sin autenticación a estos endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/ordenes/**").authenticated()
-                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                
-                .requestMatchers("/api/**").permitAll()
-                
-                .anyRequest().authenticated()
-            );
+                // Deshabilitar CSRF (necesario para APIs REST)
+                .csrf(csrf -> csrf.disable())
+
+                // Deshabilitar form login y http basic
+                .formLogin(formLogin -> formLogin.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+
+                // Habilitar CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Configurar sesiones como STATELESS (sin sesión en servidor)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configurar autorización de endpoints
+                .authorizeHttpRequests(auth -> auth
+                        // Permitir acceso sin autenticación a estos endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/ordenes/**").authenticated()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+
+                        .requestMatchers("/api/**").permitAll()
+
+                        .anyRequest().authenticated());
 
         return http.build();
     }
@@ -59,29 +57,31 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // Orígenes permitidos
-        configuration.setAllowedOriginPatterns(List.of("*")); // Permite cualquier origen temporalmente
-        // En producción usa: configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "gestify-production.up.railway.app" 
+        ));
+
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        
+
         // Headers permitidos
         configuration.setAllowedHeaders(List.of("*"));
-        
+
         // Permitir credenciales
         configuration.setAllowCredentials(true);
-        
+
         // Headers expuestos
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        
+
         // Tiempo de cache para preflight requests
         configuration.setMaxAge(3600L);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        
+
         return source;
     }
 }
