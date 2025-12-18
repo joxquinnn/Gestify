@@ -61,7 +61,7 @@ public class SecurityConfig {
         // Orígenes permitidos
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "appealing-tranquility-production-3da9.up.railway.app" 
+                "https://appealing-tranquility-production-3da9.up.railway.app" 
         ));
 
         // Métodos HTTP permitidos
