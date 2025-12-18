@@ -61,7 +61,7 @@ public class SecurityConfig {
         // Orígenes permitidos
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "gestify-production.up.railway.app" 
+                "appealing-tranquility-production-3da9.up.railway.app" 
         ));
 
         // Métodos HTTP permitidos
