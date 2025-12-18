@@ -28,58 +28,131 @@ public class OrdenDeServicioService {
         this.repuestoService = repuestoService;
     }
 
-    // --- Lógica Básica ---
+    public List<OrdenDeServicio> findByUserEmail(String userEmail) {
+        return ordenRepository.findByUserEmail(userEmail);
+    }
 
+    public List<OrdenDeServicio> findByUserEmailOrderByDate(String userEmail) {
+        return ordenRepository.findByUserEmailOrderByFechaRecepcionDesc(userEmail);
+    }
+
+    public OrdenDeServicio findByIdAndUserEmail(Long id, String userEmail) throws Exception {
+        return ordenRepository.findByIdAndUserEmail(id, userEmail)
+                .orElseThrow(() -> new Exception("Orden no encontrada o no tienes permiso para acceder a ella"));
+    }
+
+    @Transactional
+    public OrdenDeServicio saveOrder(OrdenDeServicio order, String userEmail) throws Exception {
+        // Si es una orden nueva, asignar el userEmail
+        if (order.getId() == null) {
+            order.setUserEmail(userEmail);
+        } else {
+            // Si es una actualización, verificar que el usuario sea el propietario
+            OrdenDeServicio existente = findByIdAndUserEmail(order.getId(), userEmail);
+            order.setUserEmail(existente.getUserEmail()); // Mantener el propietario original
+        }
+        
+        return ordenRepository.save(order);
+    }
+
+    @Transactional
+    public void deleteByIdAndUserEmail(Long id, String userEmail) throws Exception {
+        OrdenDeServicio orden = findByIdAndUserEmail(id, userEmail);
+        ordenRepository.delete(orden);
+    }
+
+    public List<OrdenDeServicio> findByEstadoAndUserEmail(String estado, String userEmail) {
+        return ordenRepository.findByEstadoAndUserEmail(estado.toUpperCase(), userEmail);
+    }
+
+    @Transactional
+    public OrdenDeServicio setEstado(Long id, String newEstado, String userEmail) throws Exception {
+        // Verificar que la orden pertenezca al usuario
+        OrdenDeServicio order = findByIdAndUserEmail(id, userEmail);
+        
+        order.setEstado(newEstado.toUpperCase());
+        OrdenDeServicio updatedOrder = ordenRepository.save(order);
+
+        // Lógica de notificaciones según el estado
+        switch (newEstado.toUpperCase()) {
+            case "LISTO":
+                // NotificacionService.enviarSMS(orden.getCliente().getTelefono(), "Tu equipo está listo!");
+                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " + 
+                        order.getCliente().getNombre());
+                break;
+            
+            case "ENTREGADO":
+                // reducirStockDeOrden(ordenActualizada);
+                System.out.println("📦 Orden entregada: " + order.getId());
+                break;
+            
+            case "EN_REPARACION":
+                System.out.println("🔧 Orden en reparación: " + order.getId());
+                break;
+        }
+
+        return updatedOrder;
+    }
+
+    public long countByUserEmail(String userEmail) {
+        return ordenRepository.countByUserEmail(userEmail);
+    }
+
+    public long countByEstadoAndUserEmail(String estado, String userEmail) {
+        return ordenRepository.countByEstadoAndUserEmail(estado.toUpperCase(), userEmail);
+    }
+
+    public List<OrdenDeServicio> findRecentByUserEmail(String userEmail, int limit) {
+        List<OrdenDeServicio> ordenes = ordenRepository.findRecentByUserEmail(userEmail);
+        return ordenes.size() > limit ? ordenes.subList(0, limit) : ordenes;
+    }
+
+    /**
+     * @deprecated Usar findByUserEmail(String userEmail) en su lugar
+     * Este método devuelve TODAS las órdenes sin filtrar por usuario
+     */
+    @Deprecated
     public List<OrdenDeServicio> findAll() {
         return ordenRepository.findAll();
     }
 
+    /**
+     * @deprecated Usar findByIdAndUserEmail(Long id, String userEmail)
+     */
+    @Deprecated
     public Optional<OrdenDeServicio> findByAll(Long id) {
         return ordenRepository.findById(id);
     }
 
-    // Lógica para el Kanban y Notificaciones
+    /**
+     * @deprecated Usar findByEstadoAndUserEmail(String estado, String userEmail)
+     * Este método NO filtra por usuario
+     */
+    @Deprecated
     public List<OrdenDeServicio> findByEstado(String estado) {
         return ordenRepository.findByEstado(estado);
     }
 
-    // --- Lógica de Negocio Compleja ---
-
+    /**
+     * @deprecated Usar saveOrder(OrdenDeServicio order, String userEmail)
+     */
+    @Deprecated
     @Transactional
     public OrdenDeServicio saveOrder(OrdenDeServicio order) throws Exception {
-        OrdenDeServicio savedOrder = ordenRepository.save(order);
-        
-        return ordenRepository.save(savedOrder); // Guardamos la orden con el costo actualizado
+        return ordenRepository.save(order);
     }
 
-    
-    // Lógica para cambiar el estado y activar notificaciones (Aún no implementada la notificación).
-     
+    /**
+     * @deprecated Usar setEstado(Long id, String newEstado, String userEmail)
+     */
+    @Deprecated
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado) throws Exception {
         OrdenDeServicio order = ordenRepository.findById(id)
             .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
         
         order.setEstado(newEstado);
-        OrdenDeServicio setOrder = ordenRepository.save(order);
-
-        // Si el estado es "LISTO", se debe activar la notificación al cliente (futura implementación)
-        if ("LISTO".equalsIgnoreCase(newEstado)) {
-            // NotificacionService.enviarSMS(orden.getCliente().getTelefono(), "Tu equipo está listo!");
-        }
-
-        // Si el estado es "ENTREGADO", se debe reducir el stock (futura implementación)
-        if ("ENTREGADO".equalsIgnoreCase(newEstado)) {
-             // reducirStockDeOrden(ordenActualizada);
-        }
-
-        return setOrder;
+        return ordenRepository.save(order);
     }
 
-    // --- Métodos Auxiliares Futuros ---
-
-    /* private BigDecimal calcularCostoTotal(OrdenDeServicio orden) {
-        // Lógica para sumar costos de Repuestos y Servicios, aplicando márgenes.
-        return BigDecimal.ZERO;
-    } */
 }

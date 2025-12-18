@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 // 1. Interfaces base
 interface Cliente {
@@ -47,30 +48,100 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user } = useAuth();
+
+    // Función para obtener la clave única por usuario
+    const getUserKey = (key: string) => {
+        if (!user?.email) return `gestify_${key}_guest`;
+        return `gestify_${key}_${user.email}`;
+    };
+
     // --- ESTADO: ÓRDENES ---
-    const [ordenes, setOrdenes] = useState<OrdenServicio[]>(() => {
-        const saved = localStorage.getItem('gestify_orders');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [ordenes, setOrdenes] = useState<OrdenServicio[]>([]);
 
     // --- ESTADO: CLIENTES ---
-    const [clientes, setClientes] = useState<Cliente[]>(() => {
-        const saved = localStorage.getItem('gestify_clients');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [clientes, setClientes] = useState<Cliente[]>([]);
 
     // --- ESTADO: CONFIGURACIÓN ---
-    const [configuracion, setConfiguracion] = useState<BusinessConfig>(() => {
-        const saved = localStorage.getItem('gestify_config');
-        return saved ? JSON.parse(saved) : {
-            nombreNegocio: 'Gestify Service',
-            rut: '12.345.678-9',
-            direccion: 'Av. Principal 123, Santiago',
-            telefono: '+56 9 1234 5678',
-            email: 'contacto@gestify.cl',
-            sitioWeb: 'www.gestify.cl'
-        };
+    const [configuracion, setConfiguracion] = useState<BusinessConfig>({
+        nombreNegocio: 'Gestify Service',
+        rut: '12.345.678-9',
+        direccion: 'Av. Principal 123, Santiago',
+        telefono: '+56 9 1234 5678',
+        email: 'contacto@gestify.cl',
+        sitioWeb: 'www.gestify.cl'
     });
+
+    // Cargar datos cuando el usuario cambia o inicia sesión
+    useEffect(() => {
+        if (user?.email) {
+            console.log('📂 Cargando datos para usuario:', user.email);
+
+            // Cargar órdenes del usuario
+            const savedOrders = localStorage.getItem(getUserKey('orders'));
+            if (savedOrders) {
+                try {
+                    setOrdenes(JSON.parse(savedOrders));
+                    console.log('✅ Órdenes cargadas:', JSON.parse(savedOrders).length);
+                } catch (error) {
+                    console.error('❌ Error al cargar órdenes:', error);
+                    setOrdenes([]);
+                }
+            } else {
+                setOrdenes([]);
+            }
+
+            // Cargar clientes del usuario
+            const savedClients = localStorage.getItem(getUserKey('clients'));
+            if (savedClients) {
+                try {
+                    setClientes(JSON.parse(savedClients));
+                    console.log('✅ Clientes cargados:', JSON.parse(savedClients).length);
+                } catch (error) {
+                    console.error('❌ Error al cargar clientes:', error);
+                    setClientes([]);
+                }
+            } else {
+                setClientes([]);
+            }
+
+            // Cargar configuración del usuario
+            const savedConfig = localStorage.getItem(getUserKey('config'));
+            if (savedConfig) {
+                try {
+                    setConfiguracion(JSON.parse(savedConfig));
+                    console.log('✅ Configuración cargada');
+                } catch (error) {
+                    console.error('❌ Error al cargar configuración:', error);
+                }
+            } else {
+                // Configuración por defecto personalizada con el nombre del usuario
+                const defaultConfig = {
+                    nombreNegocio: `Servicio Técnico ${user.nombre}`,
+                    rut: '12.345.678-9',
+                    direccion: 'Av. Principal 123, Santiago',
+                    telefono: '+56 9 1234 5678',
+                    email: user.email,
+                    sitioWeb: 'www.gestify.cl'
+                };
+                setConfiguracion(defaultConfig);
+                console.log('✅ Configuración por defecto aplicada');
+            }
+        } else {
+            // Si no hay usuario autenticado, limpiar todos los datos
+            console.log('🚪 Usuario no autenticado, limpiando datos...');
+            setOrdenes([]);
+            setClientes([]);
+            setConfiguracion({
+                nombreNegocio: 'Gestify Service',
+                rut: '12.345.678-9',
+                direccion: 'Av. Principal 123, Santiago',
+                telefono: '+56 9 1234 5678',
+                email: 'contacto@gestify.cl',
+                sitioWeb: 'www.gestify.cl'
+            });
+        }
+    }, [user?.email]);
 
     // --- FUNCIONES DE LÓGICA ---
     const actualizarOrden = (ordenActualizada: OrdenServicio) => {
@@ -78,24 +149,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const eliminarOrden = (id: string) => {
-        // La confirmación la dejamos aquí para centralizar la seguridad
         if (window.confirm("¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.")) {
             setOrdenes(prev => prev.filter(o => o.id !== id));
         }
     };
 
-    // --- PERSISTENCIA (LocalStorage) ---
+    // --- PERSISTENCIA (LocalStorage por usuario) ---
     useEffect(() => {
-        localStorage.setItem('gestify_orders', JSON.stringify(ordenes));
-    }, [ordenes]);
+        if (user?.email) {
+            localStorage.setItem(getUserKey('orders'), JSON.stringify(ordenes));
+            console.log('💾 Órdenes guardadas para:', user.email, '- Total:', ordenes.length);
+        }
+    }, [ordenes, user?.email]);
 
     useEffect(() => {
-        localStorage.setItem('gestify_clients', JSON.stringify(clientes));
-    }, [clientes]);
+        if (user?.email) {
+            localStorage.setItem(getUserKey('clients'), JSON.stringify(clientes));
+            console.log('💾 Clientes guardados para:', user.email, '- Total:', clientes.length);
+        }
+    }, [clientes, user?.email]);
 
     useEffect(() => {
-        localStorage.setItem('gestify_config', JSON.stringify(configuracion));
-    }, [configuracion]);
+        if (user?.email) {
+            localStorage.setItem(getUserKey('config'), JSON.stringify(configuracion));
+            console.log('💾 Configuración guardada para:', user.email);
+        }
+    }, [configuracion, user?.email]);
 
     return (
         <AppContext.Provider value={{

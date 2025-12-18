@@ -4,11 +4,16 @@ import com.Gestify.Backend.entities.OrdenDeServicio;
 import com.Gestify.Backend.services.OrdenDeServicioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ordenes")
+@CrossOrigin(origins = "http://localhost:5173")
 public class OrdenDeServicioController {
 
     private final OrdenDeServicioService ordenService;
@@ -17,46 +22,140 @@ public class OrdenDeServicioController {
         this.ordenService = ordenService;
     }
 
-    // --- CRUD BÁSICO Y CREACIÓN (Entrada de Equipo) ---
-
-    // Crear/Guardar una nueva Orden (Entrada de equipo)
     @PostMapping
-    public ResponseEntity<OrdenDeServicio> saveOrder(@RequestBody OrdenDeServicio order) {
+    public ResponseEntity<?> saveOrder(
+            @RequestBody OrdenDeServicio order,
+            Authentication auth) {
         try {
-            OrdenDeServicio newOrder = ordenService.saveOrder(order);
+            // Obtener email del usuario autenticado
+            String userEmail = auth.getName();
+            
+            OrdenDeServicio newOrder = ordenService.saveOrder(order, userEmail);
             return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
         } catch (Exception e) {
-            // Manejo de errores simplificado. En producción usarías un ControllerAdvice.
-            return new ResponseEntity<>((OrdenDeServicio)null, HttpStatus.BAD_REQUEST); 
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Error al crear la orden", "message", e.getMessage()));
         }
     }
-    
-    // Obtener todas las órdenes
+ 
     @GetMapping
-    public ResponseEntity<List<OrdenDeServicio>> findAll() {
-        return new ResponseEntity<>(ordenService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<OrdenDeServicio>> findAll(Authentication auth) {
+        String userEmail = auth.getName();
+        List<OrdenDeServicio> ordenes = ordenService.findByUserEmail(userEmail);
+        return new ResponseEntity<>(ordenes, HttpStatus.OK);
     }
 
-    // --- LÓGICA DE NEGOCIO: KANBAN Y ESTADOS ---
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(
+            @PathVariable Long id,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            OrdenDeServicio orden = ordenService.findByIdAndUserEmail(id, userEmail);
+            return ResponseEntity.ok(orden);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Orden no encontrada", "message", e.getMessage()));
+        }
+    }
 
-    
-    // Obtener órdenes por estado ---
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateOrder(
+            @PathVariable Long id,
+            @RequestBody OrdenDeServicio order,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            
+            // Asignar el ID de la URL al objeto
+            order.setId(id);
+            
+            OrdenDeServicio ordenActualizada = ordenService.saveOrder(order, userEmail);
+            return ResponseEntity.ok(ordenActualizada);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Error al actualizar", "message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteOrder(
+            @PathVariable Long id,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            ordenService.deleteByIdAndUserEmail(id, userEmail);
+            return ResponseEntity.ok(Map.of("message", "Orden eliminada correctamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Error al eliminar", "message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/estado")
-    public ResponseEntity<List<OrdenDeServicio>> findByEstado(@RequestParam String valor) {
-        List<OrdenDeServicio> orders = ordenService.findByEstado(valor.toUpperCase());
+    public ResponseEntity<List<OrdenDeServicio>> findByEstado(
+            @RequestParam String valor,
+            Authentication auth) {
+        String userEmail = auth.getName();
+        List<OrdenDeServicio> orders = ordenService.findByEstadoAndUserEmail(
+                valor.toUpperCase(), 
+                userEmail
+        );
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    // Actualizar el estado de una orden (Dispara la lógica de notificación) ---
     @PutMapping("/{id}/estado")
-    public ResponseEntity<OrdenDeServicio> setEstado(
+    public ResponseEntity<?> setEstado(
             @PathVariable Long id, 
-            @RequestParam String newEstado) {
+            @RequestParam String newEstado,
+            Authentication auth) {
         try {
-            OrdenDeServicio ordenActualizada = ordenService.setEstado(id, newEstado.toUpperCase());
+            String userEmail = auth.getName();
+            OrdenDeServicio ordenActualizada = ordenService.setEstado(
+                    id, 
+                    newEstado.toUpperCase(), 
+                    userEmail
+            );
             return new ResponseEntity<>(ordenActualizada, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Error al actualizar estado", "message", e.getMessage()));
         }
+    }
+
+    @GetMapping("/estadisticas/estados")
+    public ResponseEntity<Map<String, Long>> contarPorEstado(Authentication auth) {
+        String userEmail = auth.getName();
+        try {
+            Map<String, Long> stats = new HashMap<>();
+            stats.put("recibido", ordenService.countByEstadoAndUserEmail("RECIBIDO", userEmail));
+            stats.put("diagnostico", ordenService.countByEstadoAndUserEmail("DIAGNOSTICO", userEmail));
+            stats.put("enReparacion", ordenService.countByEstadoAndUserEmail("EN_REPARACION", userEmail));
+            stats.put("listo", ordenService.countByEstadoAndUserEmail("LISTO", userEmail));
+            stats.put("entregado", ordenService.countByEstadoAndUserEmail("ENTREGADO", userEmail));
+            stats.put("total", ordenService.countByUserEmail(userEmail));
+            
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/recientes")
+    public ResponseEntity<List<OrdenDeServicio>> obtenerRecientes(
+            @RequestParam(defaultValue = "5") int limit,
+            Authentication auth) {
+        String userEmail = auth.getName();
+        List<OrdenDeServicio> ordenes = ordenService.findRecentByUserEmail(userEmail, limit);
+        return ResponseEntity.ok(ordenes);
+    }
+
+    /**
+     * @deprecated Usar GET /api/ordenes en su lugar
+     */
+    @Deprecated
+    @GetMapping("/all")
+    public ResponseEntity<List<OrdenDeServicio>> findAllLegacy() {
+        return new ResponseEntity<>(ordenService.findAll(), HttpStatus.OK);
     }
 }

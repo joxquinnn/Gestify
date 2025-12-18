@@ -1,9 +1,11 @@
 // src/components/HeroSection.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/HeroSection.styles.css'; 
 
-// Usamos React.FC para el tipado.
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="hero-section">
       <div className="hero-container">
@@ -18,18 +20,28 @@ const HeroSection: React.FC = () => {
         </p>
 
         <div className="cta-group">
-          <a 
-            href="/signup" 
+          <button 
             className="primary-cta-button large-button"
+            onClick={() => {
+              console.log('🟢 Navegando a /register desde Hero');
+              navigate('/register');
+            }}
           >
             Comienza Gratis
-          </a>
-          <a 
-            href="#features" 
+          </button>
+          
+          <button 
             className="secondary-cta-button large-button"
+            onClick={() => {
+              // Scroll suave a la sección de features
+              const featuresSection = document.getElementById('features');
+              if (featuresSection) {
+                featuresSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
           >
             Ver Funcionalidades
-          </a>
+          </button>
         </div>
         
         <div className="hero-image-placeholder">

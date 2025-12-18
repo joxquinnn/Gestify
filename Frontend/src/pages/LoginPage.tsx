@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.styles.css';
 import { useAuth } from '../context/AuthContext';
@@ -10,29 +10,22 @@ const LoginPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     
-    const { login, isAuthenticated } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (isAuthenticated) {
-            console.log('✅ Usuario autenticado, redirigiendo a dashboard...');
-            navigate('/dashboard/inicio', { replace: true });
-        }
-    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);
 
-        console.log('🔐 Iniciando login...');
+        console.log('🔍 Iniciando login...');
         console.log('📧 Email:', email);
         console.log('🌐 Backend URL:', api.defaults.baseURL);
 
         try {
-            console.log('📤 Enviando petición a:', `${api.defaults.baseURL}/api/auth/login`);
+            console.log('📤 Enviando petición a:', `${api.defaults.baseURL}/auth/login`);
             
-            const response = await api.post('/api/auth/login', { 
+            const response = await api.post('/auth/login', { 
                 email, 
                 password 
             });
@@ -47,13 +40,14 @@ const LoginPage: React.FC = () => {
                 token: response.data.token
             };
 
-            console.log('🔄 Datos adaptados:', adaptedData);
+            console.log('📄 Datos adaptados:', adaptedData);
+            
+            // Ejecutar login (guarda en localStorage y actualiza estado)
             login(adaptedData);
 
-            console.log('🚀 Navegando a dashboard...');
-            setTimeout(() => {
-                navigate('/dashboard/inicio', { replace: true });
-            }, 100);
+            console.log('🚀 Redirigiendo a dashboard...');
+            // Redirigir después de un login exitoso
+            navigate('/dashboard/inicio', { replace: true });
 
         } catch (err: any) {
             console.error('❌ ERROR COMPLETO:', err);
