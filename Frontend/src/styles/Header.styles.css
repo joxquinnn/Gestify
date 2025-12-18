@@ -1,0 +1,130 @@
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0px 40px;
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+
+.logo-image {
+    max-height: 50px;
+    width: auto;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 35px;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #475569;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 8px 0;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.nav-link:hover {
+    color: #667eea;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-button {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+}
+
+.login-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #764ba2;
+}
+
+.primary-cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.primary-cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-cta-button {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.secondary-cta-button:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
+}
