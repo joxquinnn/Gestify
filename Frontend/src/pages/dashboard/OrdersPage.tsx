@@ -58,11 +58,11 @@ const OrdersPage: React.FC = () => {
   };
 
   const enviarWhatsApp = (orden: OrdenServicio) => {
-    const mensaje = `Hola *${orden.cliente}*, te contactamos de *Servicio Técnico*. 📱%0A%0A` +
-      `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
-      `se encuentra en estado: *${orden.estado}*.%0A%0A` +
-      `Total a pagar: $${orden.total.toLocaleString()}%0A` +
-      `¡Te esperamos!`;
+    const nombreEmpresa = configuracion?.nombreNegocio || "Servicio Técnico";
+    const mensaje = `Hola *${orden.cliente}*, te contactamos de *${nombreEmpresa}*.%0A%0A` +
+    `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
+    `se encuentra en estado: *${orden.estado}*.%0A%0A` +
+    `¡Te esperamos!`;
     const telLimpio = orden.telefono.replace(/\D/g, '');
     window.open(`https://wa.me/${telLimpio}?text=${mensaje}`, '_blank');
   };
