@@ -45,6 +45,7 @@ export const generarPDFOrden = (orden: any, config: any) => {
     headStyles: { fillColor: [37, 99, 235] }
   });
 
+  // --- TABLA 2: FALLA ---
   autoTable(doc, {
     startY: doc.lastAutoTable.finalY + 10,
     head: [['Descripción del Problema / Falla Reportada']],
@@ -53,19 +54,43 @@ export const generarPDFOrden = (orden: any, config: any) => {
     headStyles: { fillColor: [241, 245, 249], textColor: [0, 0, 0] }
   });
 
-  const currentY = doc.lastAutoTable.finalY + 20;
-
+  // --- TOTAL ---
+  const currentY = doc.lastAutoTable.finalY + 15;
   doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
   doc.text(`TOTAL A PAGAR: $${orden.total.toLocaleString()}`, 140, currentY);
 
-  // Líneas de firma
-  const firmaY = currentY + 30;
-  doc.setDrawColor(150);
-  doc.line(30, firmaY, 80, firmaY);
-  doc.text('Firma Cliente', 40, firmaY + 5);
+  // --- SECCIÓN: OBSERVACIONES Y CONDICIONES ---
+  const obsY = currentY + 15;
+  doc.setFontSize(10);
+  doc.setTextColor(40);
+  doc.setFont("helvetica", "bold");
+  doc.text("OBSERVACIONES Y CONDICIONES:", 14, obsY);
 
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(60);
+  
+  doc.text("1. El costo de revisión para teléfonos es de $3.000 y para computadores es de $5.000.", 14, obsY + 6);
+  
+  const textoRetiro = "2. Una vez notificado que el equipo está listo para retiro, el cliente tiene un plazo de 60 días para retirarlo. Cumplido el plazo, el taller no se hace responsable por el equipo.";
+  const lineasRetiro = doc.splitTextToSize(textoRetiro, 180);
+  doc.text(lineasRetiro, 14, obsY + 12);
+
+  // --- SECCIÓN: FIRMAS ---
+  const firmaY = obsY + 40;
+  doc.setDrawColor(150);
+  doc.setLineWidth(0.5);
+  
+  // Línea Cliente
+  doc.line(30, firmaY, 80, firmaY);
+  doc.setFontSize(10);
+  doc.text('Firma Cliente', 43, firmaY + 5);
+
+  // Línea Técnico
   doc.line(130, firmaY, 180, firmaY);
-  doc.text('Firma Técnico', 140, firmaY + 5);
+  doc.text('Firma Técnico', 143, firmaY + 5);
 
   // --- DESCARGAR ---
   doc.save(`Orden_${orden.id}_${orden.cliente}.pdf`);

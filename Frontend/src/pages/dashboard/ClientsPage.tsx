@@ -102,7 +102,6 @@ const ClientsPage: React.FC = () => {
                   <label>Email</label>
                   <input
                     type="email"
-                    required
                     placeholder="correo@ejemplo.com"
                     value={nuevoCliente.email}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, email: e.target.value })}
