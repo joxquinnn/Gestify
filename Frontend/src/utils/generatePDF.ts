@@ -82,11 +82,6 @@ export const generarPDFOrden = (orden: any, config: any) => {
   const firmaY = obsY + 40;
   doc.setDrawColor(150);
   doc.setLineWidth(0.5);
-  
-  // Línea Cliente
-  doc.line(30, firmaY, 80, firmaY);
-  doc.setFontSize(10);
-  doc.text('Firma Cliente', 43, firmaY + 5);
 
   // Línea Técnico
   doc.line(130, firmaY, 180, firmaY);

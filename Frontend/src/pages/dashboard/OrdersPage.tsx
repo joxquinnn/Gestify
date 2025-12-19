@@ -17,11 +17,13 @@ interface OrdenServicio {
   total: number;
 }
 
-const OPCIONES_ESTADO = [
-  "Rayones leves", "Pantalla trizada", "Golpes en bordes",
-  "Cámara rayada", "Sin botones", "Tapa trasera rota",
-  "Con protector", "Con funda", "Humedad visible"
-];
+// NUEVAS CHECKLISTS PERSONALIZADAS
+const CHECKLISTS_POR_TIPO: Record<string, string[]> = {
+  Celular: ["Pantalla Trizada", "Rayones Leves", "Tapa Trasera Rota", "Cámara Dañada", "Humedad Visible", "Sin Botones", "Con Funda", "Con Protector Pantalla", "Sin Bandeja", ],
+  Tablet: ["Pantalla Trizada", "Rayones Leves", "Puerto Carga Suelto", "Botones Pegados", "Con Funda", "Con Lápiz", "Humedad Visible", "Con Protector De Pantalla", "Sin Bandeja"],
+  Notebook: ["Con Cargador", "Con Bolso", "Faltan Tornillos", "Pantalla con Manchas", "Teclado Falla", "Bisagras Sueltas", "Batería Inflada", "Rayones en Tapa"],
+  Desktop: ["Con Cargador", "Con Bolso", "Faltan Tornillos", "Pantalla con Manchas", "Teclado Falla", "Bisagras Sueltas", "Batería Inflada", "Rayones en Tapa"]
+};
 
 const OrdersPage: React.FC = () => {
   const { ordenes, setOrdenes, clientes, configuracion, actualizarOrden, eliminarOrden } = useAppContext();
@@ -39,13 +41,13 @@ const OrdersPage: React.FC = () => {
     );
   };
 
-  // NUEVAS VARIABLES DE ESTADO (Sin tocar interfaz)
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<'activas' | 'finalizadas'>('activas');
 
+  // PRESUPUESTO INICIA VACÍO
   const [nuevaOrden, setNuevaOrden] = useState({
     cliente: '', telefono: '', dispositivo: 'Celular', marcaModelo: '',
-    password: '', fallaReportada: '', accesorios: '', presupuesto: 0
+    password: '', fallaReportada: '', accesorios: '', presupuesto: '' as any
   });
 
   const handleSelectCliente = (nombreCliente: string) => {
@@ -88,18 +90,17 @@ const OrdersPage: React.FC = () => {
       accesorios: accesoriosSeleccionados.join(', '),
       estado: 'Pendiente',
       fechaIngreso: new Date().toISOString().split('T')[0],
-      total: nuevaOrden.presupuesto
+      total: Number(nuevaOrden.presupuesto) || 0
     };
     setAccesoriosSeleccionados([]);
     setOrdenes([nuevaOS, ...ordenes]);
     setIsModalOpen(false);
     setNuevaOrden({
       cliente: '', telefono: '', dispositivo: 'Celular', marcaModelo: '',
-      password: '', fallaReportada: '', accesorios: '', presupuesto: 0
+      password: '', fallaReportada: '', accesorios: '', presupuesto: '' as any
     });
   };
 
-  // Lógica para aplicar cambios editados
   const handleConfirmEdit = () => {
     if (selectedOrder) {
       actualizarOrden(selectedOrder);
@@ -113,7 +114,6 @@ const OrdersPage: React.FC = () => {
     setIsEditing(false);
   };
 
-  // FILTRADO: Agregamos la lógica de pestañas a tu filtro original
   const ordenesFiltradas = ordenes.filter(o => {
     const matchesSearch = o.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -135,7 +135,6 @@ const OrdersPage: React.FC = () => {
         <button className="add-order-btn" onClick={() => setIsModalOpen(true)}>+ Nueva Orden</button>
       </div>
 
-      {/* Selector de pestañas con tus clases existentes */}
       <div className="orders-tabs">
         <button className={activeTab === 'activas' ? 'active' : ''} onClick={() => setActiveTab('activas')}>
           Activas ({ordenes.filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso').length})
@@ -149,7 +148,6 @@ const OrdersPage: React.FC = () => {
         <input type="text" placeholder="Buscar por Folio, Cliente o Modelo..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
-      {/* --- MODAL NUEVA ORDEN (Sin cambios en campos) --- */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content technical-modal">
@@ -171,7 +169,10 @@ const OrdersPage: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label>Tipo de Equipo</label>
-                  <select value={nuevaOrden.dispositivo} onChange={(e) => setNuevaOrden({ ...nuevaOrden, dispositivo: e.target.value })}>
+                  <select value={nuevaOrden.dispositivo} onChange={(e) => {
+                      setNuevaOrden({ ...nuevaOrden, dispositivo: e.target.value });
+                      setAccesoriosSeleccionados([]); // Limpia checklist al cambiar tipo
+                    }}>
                     <option value="Celular">Celular</option>
                     <option value="Notebook">Notebook</option>
                     <option value="Desktop">Desktop</option>
@@ -188,16 +189,21 @@ const OrdersPage: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label>Costo Reparación</label>
-                  <input type="number" value={nuevaOrden.presupuesto} onChange={(e) => setNuevaOrden({ ...nuevaOrden, presupuesto: Number(e.target.value) })} />
+                  <input 
+                    type="number" 
+                    value={nuevaOrden.presupuesto} 
+                    placeholder="Ej: 15000"
+                    onChange={(e) => setNuevaOrden({ ...nuevaOrden, presupuesto: e.target.value === '' ? '' : Number(e.target.value) })} 
+                  />
                 </div>
                 <div className="form-group full-width">
                   <label>Servicio Requerido</label>
                   <textarea required value={nuevaOrden.fallaReportada} onChange={(e) => setNuevaOrden({ ...nuevaOrden, fallaReportada: e.target.value })}></textarea>
                 </div>
                 <div className="form-group full-width">
-                  <label style={{ marginBottom: '10px', display: 'block' }}>Estado Físico / Accesorios</label>
+                  <label style={{ marginBottom: '10px', display: 'block' }}>Estado Físico / Accesorios ({nuevaOrden.dispositivo})</label>
                   <div className="checklist-container">
-                    {OPCIONES_ESTADO.map(opcion => (
+                    {(CHECKLISTS_POR_TIPO[nuevaOrden.dispositivo] || []).map(opcion => (
                       <label key={opcion} className="checklist-item">
                         <input
                           type="checkbox"
@@ -212,9 +218,7 @@ const OrdersPage: React.FC = () => {
                     type="text"
                     placeholder="Otras observaciones específicas..."
                     className="mt-10"
-                    onChange={(e) => {
-                      if (e.target.value) setNuevaOrden({ ...nuevaOrden, accesorios: e.target.value })
-                    }}
+                    onChange={(e) => setNuevaOrden({ ...nuevaOrden, accesorios: e.target.value })}
                   />
                 </div>
               </div>
@@ -251,7 +255,6 @@ const OrdersPage: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Botón Eliminar Rojo y Visible */}
                 <button className="btn-delete-order" onClick={() => { if (window.confirm("¿Estás seguro de eliminar esta orden permanentemente?")) { eliminarOrden(selectedOrder.id); setIsDetailsOpen(false); } }}>
                   🗑️ Eliminar
                 </button>
@@ -311,7 +314,6 @@ const OrdersPage: React.FC = () => {
                 </div>
               </section>
 
-              {/* Total con formato original restaurado */}
               <div style={{ textAlign: 'right', marginTop: '20px' }}>
                 <h3 style={{ margin: 0 }}>
                   Total a Pagar:
@@ -344,7 +346,6 @@ const OrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* --- TABLA PRINCIPAL (Igual a la tuya) --- */}
       <div className="table-wrapper">
         <table className="orders-table">
           <thead>
