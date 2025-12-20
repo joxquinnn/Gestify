@@ -150,7 +150,7 @@ const OrdersPage: React.FC = () => {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content technical-modal">
+          <div className="modal-content technical-modal-orders">
             <h2>Ingreso de Equipo</h2>
             <form onSubmit={handleSaveOrder}>
               <div className="form-grid">

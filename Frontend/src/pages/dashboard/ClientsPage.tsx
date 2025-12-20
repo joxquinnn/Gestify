@@ -75,7 +75,7 @@ const ClientsPage: React.FC = () => {
       {/* --- MODAL DE REGISTRO --- */}
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content technical-modal"> {/* Usamos technical-modal para mantener estilo de Orders */}
+          <div className="modal-content technical-modal-clients"> {/* Usamos technical-modal para mantener estilo de Orders */}
             <h2>Registrar Nuevo Cliente</h2>
             <form onSubmit={handleSave}>
               <div className="form-grid">
