@@ -13,7 +13,7 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="dashboard-layout">
       <Sidebar />
-      <main className="dashboard-content">
+      <main className="main-content">
         <Routes>
           <Route index element={<DashboardPage />} />
           <Route path="inicio" element={<DashboardPage />} />

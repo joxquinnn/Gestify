@@ -1,5 +1,5 @@
-.orders-container { 
-  animation: fadeIn 0.3s ease; 
+.orders-container {
+  animation: fadeIn 0.3s ease;
 }
 
 .orders-header {
@@ -47,27 +47,27 @@
   display: inline-block;
 }
 
-.status-pill.pendiente { 
+.status-pill.pendiente {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e; 
+  color: #92400e;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
 }
 
-.status-pill.en-proceso { 
+.status-pill.en-proceso {
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af; 
+  color: #1e40af;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
-.status-pill.terminado { 
+.status-pill.terminado {
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  color: #166534; 
+  color: #166534;
   box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
 }
 
-.status-pill.cancelado { 
+.status-pill.cancelado {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #475569; 
+  color: #475569;
   box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
 }
 
@@ -80,9 +80,9 @@
   border: 1px solid #f1f5f9;
 }
 
-.orders-table { 
-  width: 100%; 
-  border-collapse: collapse; 
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .orders-table thead {
@@ -99,9 +99,9 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-.orders-table td { 
-  padding: 18px 20px; 
-  border-bottom: 1px solid #f1f5f9; 
+.orders-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f1f5f9;
   font-size: 0.95rem;
   color: #334155;
 }
@@ -116,11 +116,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.action-btn.view { 
-  color: #2563eb; 
-  cursor: pointer; 
+.action-btn.view {
+  color: #2563eb;
+  cursor: pointer;
   background: rgba(37, 99, 235, 0.1);
-  border: none; 
+  border: none;
   font-weight: 700;
   padding: 8px 16px;
   border-radius: 8px;
@@ -184,7 +184,8 @@
   gap: 15px;
 }
 
-.falla-box, .accesorios-box {
+.falla-box,
+.accesorios-box {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   padding: 18px;
   border-radius: 12px;
@@ -255,50 +256,57 @@
 }
 
 .status-select-edit {
-    width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 2px solid #3b82f6;
-    background-color: white;
-    font-weight: 600;
-    color: #1e293b;
-    outline: none;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 2px solid #3b82f6;
+  background-color: white;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box;
 }
 
-.status-select.pendiente { 
+.status-select.pendiente {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e; 
-  border-color: #f59e0b; 
+  color: #92400e;
+  border-color: #f59e0b;
 }
 
-.status-select.en-proceso { 
+.status-select.en-proceso {
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af; 
-  border-color: #3b82f6; 
+  color: #1e40af;
+  border-color: #3b82f6;
 }
 
-.status-select.terminado { 
+.status-select.terminado {
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  color: #166534; 
-  border-color: #22c55e; 
+  color: #166534;
+  border-color: #22c55e;
 }
 
-.status-select.cancelado { 
+.status-select.cancelado {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #475569; 
-  border-color: #cbd5e1; 
+  color: #475569;
+  border-color: #cbd5e1;
 }
 
 /* Modal técnico para nueva orden */
 .technical-modal {
-  max-width: 700px;
+  width: 95%;
+  max-width: 1000px; 
+  max-height: 90vh;   
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  overflow-y: auto;  
+  position: relative;
 }
 
 .technical-modal .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
 }
 
 .form-group.full-width {
@@ -323,42 +331,46 @@
 }
 
 @media print {
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
+
   .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    padding: 20px; 
-}
+    z-index: 2000;
+    padding: 20px;
+  }
+
   .modal-content {
     background: white;
     width: 100%;
-    max-width: 800px; 
-    max-height: 90vh; 
-    overflow-y: auto; 
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: 16px;
     padding: 30px;
     position: relative;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
+  }
 }
 
-.modal-content::-webkit-scrollbar, 
+.modal-content::-webkit-scrollbar,
 .checklist-container::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 .modal-content::-webkit-scrollbar-thumb,
 .checklist-container::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 10px;
+  background-color: #cbd5e1;
+  border-radius: 10px;
 }
 
 @media (max-width: 600px) {
@@ -366,145 +378,147 @@
     grid-template-columns: 1fr;
   }
 }
+
 /* --- TABS DE HISTORIAL (NUEVO) --- */
 .orders-tabs {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 12px;
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
 }
 
 .orders-tabs button {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    padding: 10px 20px;
-    border-radius: 8px;
-    color: #64748b;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .orders-tabs button.active {
-    background: #2563eb;
-    color: white;
-    border-color: #2563eb;
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
 .orders-tabs button:hover:not(.active) {
-    background: #f1f5f9;
-    color: #1e293b;
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 /* --- ESTILOS PARA EDICIÓN EN MODAL (NUEVO) --- */
 .modal-header-edit {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .btn-icon-delete {
-    background: #fee2e2;
-    border: none;
-    font-size: 1.2rem;
-    padding: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s;
+  background: #fee2e2;
+  border: none;
+  font-size: 1.2rem;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
 .btn-icon-delete:hover {
-    transform: scale(1.1);
-    background: #fecaca;
+  transform: scale(1.1);
+  background: #fecaca;
 }
 
 .edit-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px;
-    align-items: start;
-    width: 100%;
-    min-width: 0; 
-    overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Clases dinámicas para los inputs */
 .input-edit {
-    border: 2px solid #3b82f6 !important;
-    background-color: white !important;
-    color: #1e293b !important;
-    padding: 10px;
-    border-radius: 6px;
-    width: 100%;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border: 2px solid #3b82f6 !important;
+  background-color: white !important;
+  color: #1e293b !important;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .input-readonly {
-    border: 1px solid #f1f5f9 !important;
-    background-color: #f8fafc !important;
-    color: #64748b;
-    padding: 10px;
-    border-radius: 6px;
-    width: 100%;
-    cursor: not-allowed;
+  border: 1px solid #f1f5f9 !important;
+  background-color: #f8fafc !important;
+  color: #64748b;
+  padding: 10px;
+  border-radius: 6px;
+  width: 100%;
+  cursor: not-allowed;
 }
 
 /* Botones de acción específicos */
 .btn-save {
-    background-color: #10b981;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .btn-edit {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    min-width: 0; 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
-.form-group textarea.input-edit, 
+.form-group textarea.input-edit,
 .form-group textarea.input-readonly {
-    width: 100%;
-    box-sizing: border-box; 
-    min-height: 80px;
-    resize: vertical; 
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 80px;
+  resize: vertical;
 }
 
 .form-group label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1; 
+  grid-column: 1 / -1;
 }
 
-.input-edit, .input-readonly {
-    box-sizing: border-box;
-    width: 100% !important;
+.input-edit,
+.input-readonly {
+  box-sizing: border-box;
+  width: 100% !important;
 }
 
 /* Botón Eliminar Profesional */
@@ -561,14 +575,14 @@
 }
 
 .checklist-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    max-height: 160px; 
-    overflow-y: auto;  
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  max-height: 160px;
+  overflow-y: auto;
 }
 
 .checklist-item {

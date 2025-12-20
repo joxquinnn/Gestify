@@ -1,6 +1,8 @@
 .settings-container {
   animation: fadeIn 0.3s ease-in-out;
-  max-width: 1200px;
+  max-width: 1100px;
+  padding-bottom: 40px;
+  margin: 0 auto;
 }
 
 .settings-header {
@@ -53,6 +55,17 @@
 
 .settings-section {
   animation: fadeIn 0.4s ease;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .section-title {
