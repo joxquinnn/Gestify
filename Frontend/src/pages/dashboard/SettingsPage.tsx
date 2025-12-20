@@ -22,13 +22,13 @@ interface NotificationSettings {
 
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'business' | 'profile' | 'notifications' | 'security'>('business');
-  
+
   const { configuracion, setConfiguracion } = useAppContext();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<BusinessInfo>(configuracion);
-  
+
   // Estados para perfil
   const [profileData, setProfileData] = useState({
     nombre: user?.nombre || '',
@@ -107,7 +107,7 @@ const SettingsPage: React.FC = () => {
   // ============================================
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       alert('❌ Las contraseñas no coinciden');
       return;
@@ -159,26 +159,26 @@ const SettingsPage: React.FC = () => {
       </div>
 
       <div className="settings-tabs">
-        <button 
-          className={`tab-button ${activeTab === 'business' ? 'active' : ''}`} 
+        <button
+          className={`tab-button ${activeTab === 'business' ? 'active' : ''}`}
           onClick={() => setActiveTab('business')}
         >
           <span className="tab-icon">🏢</span> Información del Negocio
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`} 
+        <button
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
           <span className="tab-icon">👤</span> Mi Perfil
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`} 
+        <button
+          className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
           onClick={() => setActiveTab('notifications')}
         >
           <span className="tab-icon">🔔</span> Notificaciones
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'security' ? 'active' : ''}`} 
+        <button
+          className={`tab-button ${activeTab === 'security' ? 'active' : ''}`}
           onClick={() => setActiveTab('security')}
         >
           <span className="tab-icon">🔒</span> Seguridad
@@ -190,79 +190,81 @@ const SettingsPage: React.FC = () => {
         {/* TAB: INFORMACIÓN DEL NEGOCIO */}
         {/* ============================================ */}
         {activeTab === 'business' && (
-          <div className="settings-section">
-            <h2 className="section-title">Información de tu Negocio</h2>
-            <p className="help-text" style={{marginBottom: '20px', color: '#64748b'}}>
-              * Estos datos aparecerán en el encabezado de tus órdenes de servicio y PDFs.
-            </p>
-            <form onSubmit={handleSaveBusinessInfo}>
-              <div className="form-grid-settings">
-                <div className="form-group">
-                  <label>Nombre del Negocio</label>
-                  <input 
-                    type="text" 
-                    value={formData.nombreNegocio}
-                    onChange={(e) => setFormData({...formData, nombreNegocio: e.target.value})}
-                    placeholder="Ej: Servicio Técnico XYZ"
-                    required
-                  />
+          <div className="settings-grid">
+            <div className="settings-section">
+              <h2 className="section-title">Información de tu Negocio</h2>
+              <p className="help-text" style={{ marginBottom: '20px', color: '#64748b' }}>
+                * Estos datos aparecerán en el encabezado de tus órdenes de servicio y PDFs.
+              </p>
+              <form onSubmit={handleSaveBusinessInfo}>
+                <div className="form-grid-settings">
+                  <div className="form-group">
+                    <label>Nombre del Negocio</label>
+                    <input
+                      type="text"
+                      value={formData.nombreNegocio}
+                      onChange={(e) => setFormData({ ...formData, nombreNegocio: e.target.value })}
+                      placeholder="Ej: Servicio Técnico XYZ"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>RUT / Identificación Fiscal</label>
+                    <input
+                      type="text"
+                      value={formData.rut}
+                      onChange={(e) => setFormData({ ...formData, rut: e.target.value })}
+                      placeholder="12.345.678-9"
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label>Dirección Física</label>
+                    <input
+                      type="text"
+                      value={formData.direccion}
+                      onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                      placeholder="Av. Principal 123"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Teléfono de Contacto</label>
+                    <input
+                      type="text"
+                      value={formData.telefono}
+                      onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                      placeholder="+56 9 1234 5678"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Email Público</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="contacto@negocio.cl"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Sitio Web (opcional)</label>
+                    <input
+                      type="text"
+                      value={formData.sitioWeb}
+                      onChange={(e) => setFormData({ ...formData, sitioWeb: e.target.value })}
+                      placeholder="www.tunegocio.cl"
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label>RUT / Identificación Fiscal</label>
-                  <input 
-                    type="text" 
-                    value={formData.rut}
-                    onChange={(e) => setFormData({...formData, rut: e.target.value})}
-                    placeholder="12.345.678-9"
-                  />
-                </div>
-
-                <div className="form-group full-width">
-                  <label>Dirección Física</label>
-                  <input 
-                    type="text" 
-                    value={formData.direccion}
-                    onChange={(e) => setFormData({...formData, direccion: e.target.value})}
-                    placeholder="Av. Principal 123"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Teléfono de Contacto</label>
-                  <input 
-                    type="text" 
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                    placeholder="+56 9 1234 5678"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Email Público</label>
-                  <input 
-                    type="email" 
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="contacto@negocio.cl"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Sitio Web (opcional)</label>
-                  <input 
-                    type="text" 
-                    value={formData.sitioWeb}
-                    onChange={(e) => setFormData({...formData, sitioWeb: e.target.value})}
-                    placeholder="www.tunegocio.cl"
-                  />
-                </div>
-              </div>
-              
-              <button type="submit" className="btn-save-settings">
-                💾 Guardar y Aplicar a Documentos
-              </button>
-            </form>
+                <button type="submit" className="btn-save-settings">
+                  💾 Guardar y Aplicar a Documentos
+                </button>
+              </form>
+            </div>
           </div>
         )}
 
@@ -272,7 +274,7 @@ const SettingsPage: React.FC = () => {
         {activeTab === 'profile' && (
           <div className="settings-section">
             <h2 className="section-title">Mi Perfil Personal</h2>
-            
+
             <div className="profile-photo-section">
               <div className="avatar-placeholder">
                 {profileData.nombre.charAt(0).toUpperCase()}
@@ -292,39 +294,39 @@ const SettingsPage: React.FC = () => {
               <div className="form-grid-settings">
                 <div className="form-group">
                   <label>Nombre Completo</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={profileData.nombre}
-                    onChange={(e) => setProfileData({...profileData, nombre: e.target.value})}
+                    onChange={(e) => setProfileData({ ...profileData, nombre: e.target.value })}
                     required
                   />
                 </div>
 
                 <div className="form-group">
                   <label>Email</label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     value={profileData.email}
-                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                     required
                   />
                 </div>
 
                 <div className="form-group">
                   <label>Teléfono Personal</label>
-                  <input 
-                    type="tel" 
+                  <input
+                    type="tel"
                     value={profileData.telefono}
-                    onChange={(e) => setProfileData({...profileData, telefono: e.target.value})}
+                    onChange={(e) => setProfileData({ ...profileData, telefono: e.target.value })}
                     placeholder="+56 9 8765 4321"
                   />
                 </div>
 
                 <div className="form-group">
                   <label>Cargo / Rol</label>
-                  <select 
+                  <select
                     value={profileData.cargo}
-                    onChange={(e) => setProfileData({...profileData, cargo: e.target.value})}
+                    onChange={(e) => setProfileData({ ...profileData, cargo: e.target.value })}
                   >
                     <option value="Administrador">Administrador</option>
                     <option value="Técnico">Técnico</option>
@@ -346,7 +348,7 @@ const SettingsPage: React.FC = () => {
         {activeTab === 'notifications' && (
           <div className="settings-section">
             <h2 className="section-title">Preferencias de Notificaciones</h2>
-            <p className="help-text" style={{marginBottom: '25px'}}>
+            <p className="help-text" style={{ marginBottom: '25px' }}>
               Controla cómo y cuándo quieres recibir actualizaciones.
             </p>
 
@@ -356,8 +358,8 @@ const SettingsPage: React.FC = () => {
                 <p>Recibe alertas sobre nuevas órdenes y cambios de estado</p>
               </div>
               <label className="switch">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={notifications.emailOrders}
                   onChange={() => handleNotificationToggle('emailOrders')}
                 />
@@ -371,8 +373,8 @@ const SettingsPage: React.FC = () => {
                 <p>Resumen semanal de actividad y estadísticas</p>
               </div>
               <label className="switch">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={notifications.emailReports}
                   onChange={() => handleNotificationToggle('emailReports')}
                 />
@@ -386,8 +388,8 @@ const SettingsPage: React.FC = () => {
                 <p>Notificaciones importantes por WhatsApp</p>
               </div>
               <label className="switch">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={notifications.whatsappUpdates}
                   onChange={() => handleNotificationToggle('whatsappUpdates')}
                 />
@@ -401,8 +403,8 @@ const SettingsPage: React.FC = () => {
                 <p>Notificaciones sobre equipos estancados y pendientes</p>
               </div>
               <label className="switch">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={notifications.systemAlerts}
                   onChange={() => handleNotificationToggle('systemAlerts')}
                 />
@@ -410,9 +412,9 @@ const SettingsPage: React.FC = () => {
               </label>
             </div>
 
-            <button 
-              className="btn-save-settings" 
-              style={{marginTop: '20px'}}
+            <button
+              className="btn-save-settings"
+              style={{ marginTop: '20px' }}
               onClick={handleSaveNotifications}
             >
               💾 Guardar Preferencias
@@ -431,15 +433,15 @@ const SettingsPage: React.FC = () => {
             <div className="security-option">
               <h3>🔑 Cambiar Contraseña</h3>
               <p>Actualiza tu contraseña regularmente para mayor seguridad</p>
-              
+
               <form onSubmit={handleChangePassword}>
                 <div className="form-grid-settings">
                   <div className="form-group full-width">
                     <label>Contraseña Actual</label>
-                    <input 
+                    <input
                       type="password"
                       value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                       placeholder="••••••••"
                       required
                     />
@@ -447,10 +449,10 @@ const SettingsPage: React.FC = () => {
 
                   <div className="form-group">
                     <label>Nueva Contraseña</label>
-                    <input 
+                    <input
                       type="password"
                       value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                       placeholder="••••••••"
                       minLength={6}
                       required
@@ -459,17 +461,17 @@ const SettingsPage: React.FC = () => {
 
                   <div className="form-group">
                     <label>Confirmar Nueva Contraseña</label>
-                    <input 
+                    <input
                       type="password"
                       value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                       placeholder="••••••••"
                       minLength={6}
                       required
                     />
                   </div>
                 </div>
-                
+
                 <button type="submit" className="btn-secondary">
                   Actualizar Contraseña
                 </button>
@@ -493,7 +495,7 @@ const SettingsPage: React.FC = () => {
             <div className="security-option">
               <h3>💻 Sesiones Activas</h3>
               <p>Administra los dispositivos con acceso a tu cuenta</p>
-              
+
               <div className="active-sessions">
                 <div className="session-item">
                   <div className="session-info">
@@ -512,9 +514,9 @@ const SettingsPage: React.FC = () => {
                 </div>
               </div>
 
-              <button 
-                className="btn-secondary" 
-                style={{marginTop: '15px'}}
+              <button
+                className="btn-secondary"
+                style={{ marginTop: '15px' }}
                 onClick={handleCloseOtherSessions}
               >
                 Cerrar Todas las Demás Sesiones
