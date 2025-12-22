@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { ordenesService } from '../services/order.services';
+import { clientesService } from '../services/clientes.service';
 
-// 1. Interfaces base
+// Interfaces
 interface Cliente {
     id: number;
     nombre: string;
@@ -41,28 +43,24 @@ interface AppContextType {
     setClientes: React.Dispatch<React.SetStateAction<Cliente[]>>;
     configuracion: BusinessConfig;
     setConfiguracion: React.Dispatch<React.SetStateAction<BusinessConfig>>;
-    eliminarOrden: (id: string) => void;
-    actualizarOrden: (orden: OrdenServicio) => void;
+    eliminarOrden: (id: string) => Promise<void>;
+    actualizarOrden: (orden: OrdenServicio) => Promise<void>;
+    cargarOrdenes: () => Promise<void>;
+    cargarClientes: () => Promise<void>;
+    agregarCliente: (cliente: Omit<Cliente, 'id'>) => Promise<void>;
+    eliminarCliente: (id: number) => Promise<void>;
+    loading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
-
-    // Función para obtener la clave única por usuario
-    const getUserKey = (key: string) => {
-        if (!user?.email) return `gestify_${key}_guest`;
-        return `gestify_${key}_${user.email}`;
-    };
-
-    // --- ESTADO: ÓRDENES ---
+    const { user, isAuthenticated } = useAuth();
+    
     const [ordenes, setOrdenes] = useState<OrdenServicio[]>([]);
-
-    // --- ESTADO: CLIENTES ---
     const [clientes, setClientes] = useState<Cliente[]>([]);
-
-    // --- ESTADO: CONFIGURACIÓN ---
+    const [loading, setLoading] = useState(true);
+    
     const [configuracion, setConfiguracion] = useState<BusinessConfig>({
         nombreNegocio: 'Gestify Service',
         rut: '12.345.678-9',
@@ -72,107 +70,189 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sitioWeb: 'www.gestify.cl'
     });
 
-    // Cargar datos cuando el usuario cambia o inicia sesión
-    useEffect(() => {
-        if (user?.email) {
-            console.log('📂 Cargando datos para usuario:', user.email);
-
-            // Cargar órdenes del usuario
-            const savedOrders = localStorage.getItem(getUserKey('orders'));
-            if (savedOrders) {
-                try {
-                    setOrdenes(JSON.parse(savedOrders));
-                    console.log('✅ Órdenes cargadas:', JSON.parse(savedOrders).length);
-                } catch (error) {
-                    console.error('❌ Error al cargar órdenes:', error);
-                    setOrdenes([]);
-                }
-            } else {
-                setOrdenes([]);
+    //  CARGAR ÓRDENES DESDE BACKEND (PostgreSQL en Railway)
+    const cargarOrdenes = async () => {
+        if (!isAuthenticated) {
+            console.log('⚠️ Usuario no autenticado, no se pueden cargar órdenes');
+            return;
+        }
+        
+        try {
+            console.log('📥 Cargando órdenes desde PostgreSQL (Railway)...');
+            const ordenesBackend = await ordenesService.getOrdenes();
+            setOrdenes(ordenesBackend);
+            console.log('✅ Órdenes cargadas desde DB:', ordenesBackend.length);
+        } catch (error: any) {
+            console.error('❌ Error al cargar órdenes desde DB:', error);
+            
+            // Mensaje específico según el error
+            if (error.response?.status === 401) {
+                console.error('🔒 Token expirado, redirigiendo a login...');
+            } else if (!error.response) {
+                console.error('🔴 Backend no disponible en Railway');
             }
+            
+            setOrdenes([]);
+        }
+    };
 
-            // Cargar clientes del usuario
-            const savedClients = localStorage.getItem(getUserKey('clients'));
-            if (savedClients) {
-                try {
-                    setClientes(JSON.parse(savedClients));
-                    console.log('✅ Clientes cargados:', JSON.parse(savedClients).length);
-                } catch (error) {
-                    console.error('❌ Error al cargar clientes:', error);
-                    setClientes([]);
-                }
-            } else {
-                setClientes([]);
-            }
+    //  CARGAR CLIENTES DESDE BACKEND (PostgreSQL en Railway)
+    const cargarClientes = async () => {
+        if (!isAuthenticated) {
+            console.log('⚠️ Usuario no autenticado, no se pueden cargar clientes');
+            return;
+        }
+        
+        try {
+            console.log('📥 Cargando clientes desde PostgreSQL (Railway)...');
+            const clientesBackend = await clientesService.getClientes();
+            setClientes(clientesBackend);
+            console.log('✅ Clientes cargados desde DB:', clientesBackend.length);
+        } catch (error) {
+            console.error('❌ Error al cargar clientes desde DB:', error);
+            setClientes([]);
+        }
+    };
 
-            // Cargar configuración del usuario
-            const savedConfig = localStorage.getItem(getUserKey('config'));
-            if (savedConfig) {
-                try {
-                    setConfiguracion(JSON.parse(savedConfig));
-                    console.log('✅ Configuración cargada');
-                } catch (error) {
-                    console.error('❌ Error al cargar configuración:', error);
-                }
-            } else {
-                // Configuración por defecto personalizada con el nombre del usuario
-                const defaultConfig = {
-                    nombreNegocio: `Servicio Técnico ${user.nombre}`,
-                    rut: '12.345.678-9',
-                    direccion: 'Av. Principal 123, Santiago',
-                    telefono: '+56 9 1234 5678',
-                    email: user.email,
-                    sitioWeb: 'www.gestify.cl'
-                };
-                setConfiguracion(defaultConfig);
-                console.log('✅ Configuración por defecto aplicada');
+    //  AGREGAR CLIENTE (EN BACKEND)
+    const agregarCliente = async (cliente: Omit<Cliente, 'id'>) => {
+        try {
+            console.log('💾 Guardando cliente en PostgreSQL...');
+            const clienteCreado = await clientesService.crearCliente(cliente);
+            setClientes(prev => [...prev, clienteCreado]);
+            console.log('✅ Cliente guardado en DB');
+        } catch (error) {
+            console.error('❌ Error al guardar cliente:', error);
+            throw error;
+        }
+    };
+
+    //  ELIMINAR CLIENTE (EN BACKEND)
+    const eliminarCliente = async (id: number) => {
+        try {
+            console.log('🗑️ Eliminando cliente de PostgreSQL...');
+            await clientesService.eliminarCliente(id);
+            setClientes(prev => prev.filter(c => c.id !== id));
+            console.log('✅ Cliente eliminado de DB');
+        } catch (error) {
+            console.error('❌ Error al eliminar cliente:', error);
+            throw error;
+        }
+    };
+
+    //  CARGAR CONFIGURACIÓN (Solo en localStorage por ahora)
+    const cargarConfiguracion = () => {
+        if (!user?.email) return;
+        
+        const configKey = `gestify_config_${user.email}`;
+        const savedConfig = localStorage.getItem(configKey);
+        
+        if (savedConfig) {
+            try {
+                setConfiguracion(JSON.parse(savedConfig));
+                console.log('✅ Configuración cargada desde localStorage');
+            } catch (error) {
+                console.error('❌ Error al cargar configuración:', error);
             }
         } else {
-            // Si no hay usuario autenticado, limpiar todos los datos
-            console.log('🚪 Usuario no autenticado, limpiando datos...');
-            setOrdenes([]);
-            setClientes([]);
-            setConfiguracion({
-                nombreNegocio: 'Gestify Service',
+            // Configuración por defecto
+            const defaultConfig = {
+                nombreNegocio: `Servicio Técnico ${user.nombre}`,
                 rut: '12.345.678-9',
                 direccion: 'Av. Principal 123, Santiago',
                 telefono: '+56 9 1234 5678',
-                email: 'contacto@gestify.cl',
+                email: user.email,
                 sitioWeb: 'www.gestify.cl'
-            });
+            };
+            setConfiguracion(defaultConfig);
+            console.log('✅ Configuración por defecto aplicada');
         }
-    }, [user?.email]);
-
-    // --- FUNCIONES DE LÓGICA ---
-    const actualizarOrden = (ordenActualizada: OrdenServicio) => {
-        setOrdenes(prev => prev.map(o => o.id === ordenActualizada.id ? ordenActualizada : o));
     };
 
-    const eliminarOrden = (id: string) => {
-        if (window.confirm("¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.")) {
+    //  EFECTO: Cargar datos cuando usuario esté autenticado
+    useEffect(() => {
+        const inicializarDatos = async () => {
+            if (isAuthenticated && user?.email) {
+                setLoading(true);
+                console.log('🔄 Inicializando datos desde Railway para:', user.email);
+                
+                await Promise.all([
+                    cargarOrdenes(),
+                    cargarClientes()
+                ]);
+                
+                cargarConfiguracion();
+                setLoading(false);
+                console.log('✅ Datos inicializados correctamente');
+            } else {
+                // Usuario no autenticado: limpiar todo
+                console.log('🔒 No hay usuario autenticado, limpiando datos...');
+                setOrdenes([]);
+                setClientes([]);
+                setConfiguracion({
+                    nombreNegocio: 'Gestify Service',
+                    rut: '12.345.678-9',
+                    direccion: 'Av. Principal 123, Santiago',
+                    telefono: '+56 9 1234 5678',
+                    email: 'contacto@gestify.cl',
+                    sitioWeb: 'www.gestify.cl'
+                });
+                setLoading(false);
+            }
+        };
+
+        inicializarDatos();
+    }, [isAuthenticated, user?.email]);
+
+    //  ACTUALIZAR ORDEN (EN POSTGRESQL)
+    const actualizarOrden = async (ordenActualizada: OrdenServicio) => {
+        try {
+            console.log('🔄 Actualizando orden en PostgreSQL:', ordenActualizada.id);
+            const ordenBackend = await ordenesService.actualizarOrden(
+                ordenActualizada.id, 
+                ordenActualizada
+            );
+            
+            // Actualizar estado local
+            setOrdenes(prev => prev.map(o => 
+                o.id === ordenActualizada.id ? ordenBackend : o
+            ));
+            
+            console.log('✅ Orden actualizada en DB');
+        } catch (error) {
+            console.error('❌ Error al actualizar orden en DB:', error);
+            alert('Error al actualizar la orden. Por favor intenta nuevamente.');
+            throw error;
+        }
+    };
+
+    //  ELIMINAR ORDEN (EN POSTGRESQL)
+    const eliminarOrden = async (id: string) => {
+        if (!window.confirm("¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.")) {
+            return;
+        }
+
+        try {
+            console.log('🗑️ Eliminando orden de PostgreSQL:', id);
+            await ordenesService.eliminarOrden(id);
+            
+            // Actualizar estado local
             setOrdenes(prev => prev.filter(o => o.id !== id));
+            
+            console.log('✅ Orden eliminada de DB');
+        } catch (error) {
+            console.error('❌ Error al eliminar orden de DB:', error);
+            alert('Error al eliminar la orden. Por favor intenta nuevamente.');
+            throw error;
         }
     };
 
-    // --- PERSISTENCIA (LocalStorage por usuario) ---
+    //  GUARDAR CONFIGURACIÓN 
     useEffect(() => {
         if (user?.email) {
-            localStorage.setItem(getUserKey('orders'), JSON.stringify(ordenes));
-            console.log('💾 Órdenes guardadas para:', user.email, '- Total:', ordenes.length);
-        }
-    }, [ordenes, user?.email]);
-
-    useEffect(() => {
-        if (user?.email) {
-            localStorage.setItem(getUserKey('clients'), JSON.stringify(clientes));
-            console.log('💾 Clientes guardados para:', user.email, '- Total:', clientes.length);
-        }
-    }, [clientes, user?.email]);
-
-    useEffect(() => {
-        if (user?.email) {
-            localStorage.setItem(getUserKey('config'), JSON.stringify(configuracion));
-            console.log('💾 Configuración guardada para:', user.email);
+            const configKey = `gestify_config_${user.email}`;
+            localStorage.setItem(configKey, JSON.stringify(configuracion));
+            console.log('💾 Configuración guardada en localStorage');
         }
     }, [configuracion, user?.email]);
 
@@ -185,9 +265,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             configuracion,
             setConfiguracion,
             eliminarOrden,
-            actualizarOrden
+            actualizarOrden,
+            cargarOrdenes,
+            cargarClientes,
+            agregarCliente,
+            eliminarCliente,
+            loading
         }}>
-            {children}
+            {loading ? (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh',
+                    fontSize: '1.2rem',
+                    color: '#64748b'
+                }}>
+                    ⏳ Cargando datos desde Railway...
+                </div>
+            ) : (
+                children
+            )}
         </AppContext.Provider>
     );
 };

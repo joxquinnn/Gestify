@@ -3,13 +3,12 @@ import '../../styles/ClientsPage.styles.css';
 import { useAppContext } from '../../context/AppContext';
 
 const ClientsPage: React.FC = () => {
-  // 1. Conexión al Cerebro Global
-  const { clientes, setClientes } = useAppContext();
+  const { clientes, agregarCliente, eliminarCliente } = useAppContext();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Estado temporal para el formulario
   const [nuevoCliente, setNuevoCliente] = useState({
     nombre: '',
     empresa: '',
@@ -23,30 +22,49 @@ const ClientsPage: React.FC = () => {
     cliente.empresa.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSave = (e: React.FormEvent) => {
+  //  GUARDAR CLIENTE EN BACKEND (PostgreSQL)
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     
-    // 2. Crear el nuevo objeto cliente
-    const clienteFinal = {
-      id: Date.now(), // ID único basado en tiempo
-      nombre: nuevoCliente.nombre,
-      empresa: nuevoCliente.empresa || 'Particular',
-      email: nuevoCliente.email,
-      telefono: nuevoCliente.telefono,
-      estado: 'Activo' as const // Forzamos el tipo literal
-    };
+    try {
+      const clienteFinal = {
+        nombre: nuevoCliente.nombre,
+        empresa: nuevoCliente.empresa || 'Particular',
+        email: nuevoCliente.email,
+        telefono: nuevoCliente.telefono,
+        estado: 'Activo' as const
+      };
 
-    // 3. Guardar en el contexto (esto dispara el guardado en LocalStorage)
-    setClientes([...clientes, clienteFinal]);
-    
-    // Limpieza
-    setIsModalOpen(false);
-    setNuevoCliente({ nombre: '', empresa: '', email: '', telefono: '' });
+      console.log('💾 Guardando cliente en PostgreSQL...');
+      await agregarCliente(clienteFinal);
+      
+      // Limpiar formulario
+      setIsModalOpen(false);
+      setNuevoCliente({ nombre: '', empresa: '', email: '', telefono: '' });
+      
+      alert('✅ Cliente guardado exitosamente en la base de datos');
+    } catch (error) {
+      console.error('❌ Error al guardar cliente:', error);
+      alert('Error al guardar el cliente. Por favor intenta nuevamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const deleteCliente = (id: number) => {
-    if(window.confirm('¿Estás seguro de eliminar este cliente?')) {
-      setClientes(clientes.filter(c => c.id !== id));
+  //  ELIMINAR CLIENTE DEL BACKEND (PostgreSQL)
+  const deleteCliente = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de eliminar este cliente?')) {
+      return;
+    }
+
+    try {
+      console.log('🗑️ Eliminando cliente de PostgreSQL...');
+      await eliminarCliente(id);
+      alert('✅ Cliente eliminado correctamente');
+    } catch (error) {
+      console.error('❌ Error al eliminar cliente:', error);
+      alert('Error al eliminar el cliente. Por favor intenta nuevamente.');
     }
   };
 
@@ -55,7 +73,7 @@ const ClientsPage: React.FC = () => {
       <div className="clients-header">
         <div>
           <h1 className="page-title">Gestión de Clientes</h1>
-          <p className="page-subtitle">Base de datos centralizada de contactos.</p>
+          <p className="page-subtitle">Base de datos centralizada en PostgreSQL (Railway).</p>
         </div>
         <button className="add-client-btn" onClick={() => setIsModalOpen(true)}>
           + Nuevo Cliente
@@ -75,18 +93,19 @@ const ClientsPage: React.FC = () => {
       {/* --- MODAL DE REGISTRO --- */}
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content technical-modal-clients"> {/* Usamos technical-modal para mantener estilo de Orders */}
+          <div className="modal-content technical-modal-clients">
             <h2>Registrar Nuevo Cliente</h2>
             <form onSubmit={handleSave}>
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Nombre Completo</label>
+                  <label>Nombre Completo *</label>
                   <input
                     type="text"
                     required
                     placeholder="Ej: Juan Pérez"
                     value={nuevoCliente.nombre}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })}
+                    disabled={isSaving}
                   />
                 </div>
                 <div className="form-group">
@@ -96,6 +115,7 @@ const ClientsPage: React.FC = () => {
                     placeholder="Ej: Taller Central"
                     value={nuevoCliente.empresa}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, empresa: e.target.value })}
+                    disabled={isSaving}
                   />
                 </div>
                 <div className="form-group">
@@ -105,22 +125,37 @@ const ClientsPage: React.FC = () => {
                     placeholder="correo@ejemplo.com"
                     value={nuevoCliente.email}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, email: e.target.value })}
+                    disabled={isSaving}
                   />
                 </div>
                 <div className="form-group">
-                  <label>Teléfono / WhatsApp</label>
+                  <label>Teléfono / WhatsApp *</label>
                   <input
                     type="text"
                     required
                     placeholder="Ej: 56912345678"
                     value={nuevoCliente.telefono}
                     onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
+                    disabled={isSaving}
                   />
                 </div>
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-save">Guardar Cliente</button>
+                <button 
+                  type="button" 
+                  className="btn-cancel" 
+                  onClick={() => setIsModalOpen(false)}
+                  disabled={isSaving}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-save"
+                  disabled={isSaving}
+                >
+                  {isSaving ? '⏳ Guardando...' : 'Guardar Cliente'}
+                </button>
               </div>
             </form>
           </div>
@@ -132,6 +167,7 @@ const ClientsPage: React.FC = () => {
         <table className="clients-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Nombre</th>
               <th>Empresa</th>
               <th>Email</th>
@@ -144,6 +180,7 @@ const ClientsPage: React.FC = () => {
             {clientesFiltrados.length > 0 ? (
               clientesFiltrados.map((cliente) => (
                 <tr key={cliente.id}>
+                  <td><strong>#{cliente.id}</strong></td>
                   <td><strong>{cliente.nombre}</strong></td>
                   <td>{cliente.empresa}</td>
                   <td>{cliente.email}</td>
@@ -166,8 +203,8 @@ const ClientsPage: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                  No se encontraron clientes.
+                <td colSpan={7} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                  {searchTerm ? 'No se encontraron clientes con ese criterio' : 'No hay clientes registrados. Agrega el primero.'}
                 </td>
               </tr>
             )}
