@@ -2,21 +2,19 @@ package com.Gestify.Backend.controller;
 
 import com.Gestify.Backend.entities.Cliente;
 import com.Gestify.Backend.services.ClienteService;
-
 import jakarta.validation.Valid;
-
 import com.Gestify.Backend.mapper.ClienteMapper;
 import com.Gestify.Backend.dtos.ClienteResponseDTO;
 import com.Gestify.Backend.dtos.ClienteRequestDTO;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -28,53 +26,76 @@ public class ClienteController {
     @Autowired
     private ClienteMapper clienteMapper;
 
-    // Obtener todos los clietnes
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDTO>> getAllClientes() {
-        List<Cliente> clientes = clienteService.findAll();
+    public ResponseEntity<List<ClienteResponseDTO>> getAllClientes(Authentication auth) {
+        String userEmail = auth.getName();
+        List<Cliente> clientes = clienteService.findByUserEmail(userEmail);
         return ResponseEntity.ok(clienteMapper.toResponseDTOList(clientes));  
     }
 
-    // Obtener un cliente por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> findById(@PathVariable Long id) {
-        return clienteService.findById(id)
-                .map(cliente -> new ResponseEntity<>(clienteMapper.toResponseDTO(cliente), HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> findById(
+            @PathVariable Long id,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            Cliente cliente = clienteService.findByIdAndUserEmail(id, userEmail);
+            return ResponseEntity.ok(clienteMapper.toResponseDTO(cliente));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Cliente no encontrado", "message", e.getMessage()));
+        }
     }
 
-    // Crear un nuevo cliente
     @PostMapping
-    public ResponseEntity<ClienteResponseDTO> createCliente(@Valid @RequestBody ClienteRequestDTO clienteDto) {
-        
-        Cliente clienteToSave = clienteMapper.toEntity(clienteDto);
-
-        Cliente savedCliente = clienteService.save(clienteToSave);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteMapper.toResponseDTO(savedCliente));
+    public ResponseEntity<?> createCliente(
+            @Valid @RequestBody ClienteRequestDTO clienteDto,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            Cliente clienteToSave = clienteMapper.toEntity(clienteDto);
+            Cliente savedCliente = clienteService.save(clienteToSave, userEmail);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(clienteMapper.toResponseDTO(savedCliente));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Error al crear cliente", "message", e.getMessage()));
+        }
     }
 
-    // Actualizar un cliente existente
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> setCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequestDTO clienteDetailsDTO) {
-        return clienteService.findById(id)
-                .map(cliente -> {
-                    cliente.setNombre(clienteDetailsDTO.getNombre());
-                    cliente.setTelefono(clienteDetailsDTO.getTelefono());
-                    cliente.setEmail(clienteDetailsDTO.getEmail());
-                    cliente.setDireccion(clienteDetailsDTO.getDireccion());
+    public ResponseEntity<?> setCliente(
+            @PathVariable Long id,
+            @Valid @RequestBody ClienteRequestDTO clienteDetailsDTO,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            Cliente cliente = clienteService.findByIdAndUserEmail(id, userEmail);
+            
+            cliente.setNombre(clienteDetailsDTO.getNombre());
+            cliente.setTelefono(clienteDetailsDTO.getTelefono());
+            cliente.setEmail(clienteDetailsDTO.getEmail());
+            cliente.setDireccion(clienteDetailsDTO.getDireccion());
 
-                    Cliente updateCliente = clienteService.save(cliente);
-
-                    return new ResponseEntity<>(clienteMapper.toResponseDTO(updateCliente), HttpStatus.OK);
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            Cliente updatedCliente = clienteService.save(cliente, userEmail);
+            return ResponseEntity.ok(clienteMapper.toResponseDTO(updatedCliente));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Error al actualizar", "message", e.getMessage()));
+        }
     }
 
-    // Eliminar un Cliente
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteCliente(@PathVariable Long id) {
-        clienteService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteCliente(
+            @PathVariable Long id,
+            Authentication auth) {
+        try {
+            String userEmail = auth.getName();
+            clienteService.deleteByIdAndUserEmail(id, userEmail);
+            return ResponseEntity.ok(Map.of("message", "Cliente eliminado correctamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Error al eliminar", "message", e.getMessage()));
+        }
     }
 }
