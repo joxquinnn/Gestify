@@ -165,18 +165,18 @@ const OrdersPage: React.FC = () => {
   };
 
   const ordenesFiltradas = ordenes.filter(o => {
-    const searchTermLower = searchTerm.toLowerCase();
+  const searchTermLower = searchTerm.toLowerCase();
+  const matchesSearch = 
+    (o.cliente?.toLowerCase() || '').includes(searchTermLower) ||
+    (o.id?.toLowerCase() || '').includes(searchTermLower) ||
+    (o.marcaModelo?.toLowerCase() || '').includes(searchTermLower);
 
-    const matchesSearch =
-      (o.cliente?.toLowerCase() || '').includes(searchTermLower) ||
-      (o.id?.toLowerCase() || '').includes(searchTermLower) ||
-      (o.marcaModelo?.toLowerCase() || '').includes(searchTermLower);
-
-    if (activeTab === 'activas') {
-      return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
-    }
-    return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Cancelado');
-  });
+  if (activeTab === 'activas') {
+    return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
+  }
+  // Pestaña historial
+  return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Cancelado');
+});
 
   return (
     <div className="orders-container">

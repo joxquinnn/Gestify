@@ -61,13 +61,12 @@ public class OrdenDeServicioService {
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado, String userEmail) throws Exception {
         OrdenDeServicio order = ordenRepository.findByIdAndUserEmail(id, userEmail)
-                .orElseThrow(() -> new Exception("Orden no encontrada"));
+                .orElseThrow(() -> new Exception("Orden no encontrada o no pertenece al usuario"));
 
         order.setEstado(newEstado.toUpperCase());
         ordenRepository.save(order);
 
-      
-        return ordenRepository.findById(id).orElse(order);
+        return ordenRepository.findByIdAndUserEmail(id, userEmail).get();
     }
 
     public long countByUserEmail(String userEmail) {
