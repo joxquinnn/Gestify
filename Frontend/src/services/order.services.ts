@@ -18,38 +18,48 @@ interface OrdenBackendDTO {
 }
 
 // Convertir de formato frontend a backend
-const toBackendFormat = (orden: Partial<OrdenServicio>): any => {
-  return {
-    cliente: orden.cliente,
-    telefono: orden.telefono,
-    dispositivo: orden.dispositivo,
-    marcaModelo: orden.marcaModelo,
-    password: orden.password,
-    fallaReportada: orden.fallaReportada,
-    accesorios: orden.accesorios,
-    estado: orden.estado?.toUpperCase().replace(/\s+/g, '_') || 'PENDIENTE',
-    fechaRecepcion: orden.fechaIngreso, // Mapear al nombre correcto
-    total: orden.total
+const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
+  const payload: any = {
+    //  Mapear campos correctamente según OrdenDeServicio.java
+    equipoModelo: orden.marcaModelo || '', 
+    equipoSerie: '', 
+    diagnosticoInicial: orden.fallaReportada || '',
+    condicionFisica: orden.accesorios || '', 
+    estado: orden.estado?.toUpperCase().replace(/\s+/g, '_') || 'RECIBIDO',
+    costoTotal: orden.total || 0, 
+    
+    
   };
+
+  //  Cliente como objeto con ID (relación @ManyToOne)
+  if (clienteId) {
+    payload.cliente = { id: clienteId };
+  }
+
+  console.log('📦 Payload para backend:', JSON.stringify(payload, null, 2));
+  return payload;
 };
 
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
   return {
-    id: `OS-${orden.id}`, // Convertir Long a String con prefijo
-    cliente: orden.cliente?.nombre || orden.cliente || 'Sin cliente',
-    telefono: orden.telefono || '',
-    dispositivo: orden.dispositivo || 'Celular',
-    marcaModelo: orden.marcaModelo || '',
-    password: orden.password,
-    fallaReportada: orden.fallaReportada,
-    accesorios: orden.accesorios,
-    estado: orden.estado?.replace(/_/g, ' ')
+    id: `OS-${orden.id}`, 
+    cliente: orden.cliente?.nombre || 'Sin cliente',
+    telefono: orden.cliente?.telefono || '',
+    dispositivo: 'Celular', 
+    marcaModelo: orden.equipoModelo || '', 
+    password: '',
+    fallaReportada: orden.diagnosticoInicial || '', 
+    accesorios: orden.condicionFisica || '', 
+    estado: (orden.estado || 'RECIBIDO')
+      .replace(/_/g, ' ')
       .split(' ')
       .map((word: string) => word.charAt(0) + word.slice(1).toLowerCase())
-      .join(' ') as any || 'Pendiente',
-    fechaIngreso: orden.fechaRecepcion?.split('T')[0] || new Date().toISOString().split('T')[0],
-    total: orden.total || 0
+      .join(' ') as any,
+    fechaIngreso: orden.fechaRecepcion 
+      ? new Date(orden.fechaRecepcion).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
+    total: Number(orden.costoTotal) || 0 // BigDecimal → number
   };
 };
 
@@ -68,18 +78,23 @@ export const ordenesService = {
   },
 
   //  Crear nueva orden
-  async crearOrden(orden: Omit<OrdenServicio, 'id'>): Promise<OrdenServicio> {
+  async crearOrden(orden: Omit<OrdenServicio, 'id'>, clienteId?: number): Promise<OrdenServicio> {
     try {
       console.log('💾 Creando orden en backend...');
-      const ordenBackend = toBackendFormat(orden);
-      console.log('📤 Datos enviados:', ordenBackend);
+      console.log('📋 Datos recibidos:', orden);
+      console.log('👤 Cliente ID:', clienteId);
+      
+      const ordenBackend = toBackendFormat(orden, clienteId);
+      console.log('📤 Datos enviados a backend:', ordenBackend);
       
       const response = await api.post('/ordenes', ordenBackend);
-      console.log('✅ Orden creada:', response.data);
+      console.log('✅ Respuesta del backend:', response.data);
       
       return toFrontendFormat(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error al crear orden:', error);
+      console.error('📄 Respuesta error:', error.response?.data);
+      console.error('🔢 Status:', error.response?.status);
       throw error;
     }
   },
@@ -116,7 +131,7 @@ export const ordenesService = {
     }
   },
 
-  //  Cambiar estado de orden
+  // Cambiar estado de orden
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
     try {
       console.log('🔄 Cambiando estado:', id, '→', nuevoEstado);
