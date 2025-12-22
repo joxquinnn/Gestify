@@ -45,7 +45,7 @@ public class OrdenDeServicioService {
     public OrdenDeServicio saveOrder(OrdenDeServicio order, String userEmail) throws Exception {
         OrdenDeServicio savedOrder = ordenRepository.save(order);
 
-        return ordenRepository.findById(savedOrder.getId()).orElse(savedOrder);
+        return ordenRepository.findById(savedOrder.getId()).get();
     }
 
     @Transactional
@@ -66,8 +66,7 @@ public class OrdenDeServicioService {
         order.setEstado(newEstado.toUpperCase());
         ordenRepository.save(order);
 
-      
-        return ordenRepository.findById(id).orElse(order);
+        return ordenRepository.findByIdAndUserEmail(id, userEmail).get();
     }
 
     public long countByUserEmail(String userEmail) {
