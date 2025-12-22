@@ -19,7 +19,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
   return {
-    id: `OS-${orden.id}`,
+    id: `OS-${orden.id}`, 
     cliente: orden.cliente?.nombre || 'Sin cliente',
     telefono: orden.cliente?.telefono || '',
     dispositivo: 'Celular', 
@@ -118,7 +118,7 @@ export const ordenesService = {
     console.log('🔄 Cambiando estado de orden:', id, '→', nuevoEstado);
     
     
-    const numericId = id.replace('OS-', '');
+    const numericId = String(id).replace('OS-', '');
     
     const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
     

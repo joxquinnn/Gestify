@@ -19,10 +19,10 @@ public class OrdenDeServicioService {
 
     // Inyección de dependencias
     public OrdenDeServicioService(
-            OrdenDeServicioRepository ordenRepository,
-            DetalleOrdenItemRepository detalleRepository,
-            RepuestoService repuestoService) {
-
+        OrdenDeServicioRepository ordenRepository, 
+        DetalleOrdenItemRepository detalleRepository, 
+        RepuestoService repuestoService) {
+        
         this.ordenRepository = ordenRepository;
         this.detalleRepository = detalleRepository;
         this.repuestoService = repuestoService;
@@ -43,9 +43,16 @@ public class OrdenDeServicioService {
 
     @Transactional
     public OrdenDeServicio saveOrder(OrdenDeServicio order, String userEmail) throws Exception {
-        OrdenDeServicio savedOrder = ordenRepository.save(order);
-
-        return ordenRepository.findById(savedOrder.getId()).orElse(savedOrder);
+        // Si es una orden nueva, asignar el userEmail
+        if (order.getId() == null) {
+            order.setUserEmail(userEmail);
+        } else {
+            // Si es una actualización, verificar que el usuario sea el propietario
+            OrdenDeServicio existente = findByIdAndUserEmail(order.getId(), userEmail);
+            order.setUserEmail(existente.getUserEmail()); // Mantener el propietario original
+        }
+        
+        return ordenRepository.save(order);
     }
 
     @Transactional
@@ -60,13 +67,31 @@ public class OrdenDeServicioService {
 
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado, String userEmail) throws Exception {
-        OrdenDeServicio order = ordenRepository.findByIdAndUserEmail(id, userEmail)
-                .orElseThrow(() -> new Exception("Orden no encontrada o no pertenece al usuario"));
-
+        // Verificar que la orden pertenezca al usuario
+        OrdenDeServicio order = findByIdAndUserEmail(id, userEmail);
+        
         order.setEstado(newEstado.toUpperCase());
-        ordenRepository.save(order);
+        OrdenDeServicio updatedOrder = ordenRepository.save(order);
 
-        return ordenRepository.findByIdAndUserEmail(id, userEmail).get();
+        // Lógica de notificaciones según el estado
+        switch (newEstado.toUpperCase()) {
+            case "LISTO":
+                // NotificacionService.enviarSMS(orden.getCliente().getTelefono(), "Tu equipo está listo!");
+                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " + 
+                        order.getCliente().getNombre());
+                break;
+            
+            case "ENTREGADO":
+                // reducirStockDeOrden(ordenActualizada);
+                System.out.println("📦 Orden entregada: " + order.getId());
+                break;
+            
+            case "EN_REPARACION":
+                System.out.println("🔧 Orden en reparación: " + order.getId());
+                break;
+        }
+
+        return updatedOrder;
     }
 
     public long countByUserEmail(String userEmail) {
@@ -84,7 +109,7 @@ public class OrdenDeServicioService {
 
     /**
      * @deprecated Usar findByUserEmail(String userEmail) en su lugar
-     *             Este método devuelve TODAS las órdenes sin filtrar por usuario
+     * Este método devuelve TODAS las órdenes sin filtrar por usuario
      */
     @Deprecated
     public List<OrdenDeServicio> findAll() {
@@ -101,7 +126,7 @@ public class OrdenDeServicioService {
 
     /**
      * @deprecated Usar findByEstadoAndUserEmail(String estado, String userEmail)
-     *             Este método NO filtra por usuario
+     * Este método NO filtra por usuario
      */
     @Deprecated
     public List<OrdenDeServicio> findByEstado(String estado) {
@@ -124,8 +149,8 @@ public class OrdenDeServicioService {
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado) throws Exception {
         OrdenDeServicio order = ordenRepository.findById(id)
-                .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
-
+            .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
+        
         order.setEstado(newEstado);
         return ordenRepository.save(order);
     }
