@@ -110,24 +110,20 @@ export const ordenesService = {
   // Cambiar estado de orden
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
   try {
-    if (!id || id === 'undefined') {
-      console.error('❌ ID de orden no válido para cambiar estado');
-      throw new Error('ID de orden no definido');
-    }
-
-    console.log('🔄 Cambiando estado de orden:', id, '→', nuevoEstado);
+    // 1. Limpiamos el ID: "OS-12" -> "12"
+    const numericId = id.toString().replace('OS-', ''); 
     
-    
-    const numericId = id.replace('OS-', '');
-    
+    // 2. Preparamos el estado para el backend (ej: "En Proceso" -> "EN_PROCESO")
     const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
     
-    
+    console.log(`📡 Enviando actualización: ID=${numericId}, Estado=${estadoBackend}`);
+
+    // 3. Petición con el ID numérico
     const response = await api.put(
       `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
     );
     
-    console.log('✅ Estado actualizado en servidor:', response.data);
+    // 4. Retornamos convertido a frontend (aquí se le vuelve a poner el "OS-")
     return toFrontendFormat(response.data);
   } catch (error) {
     console.error('❌ Error al cambiar estado:', error);
