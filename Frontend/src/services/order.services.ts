@@ -2,21 +2,6 @@
 import api from '../api/axiosConfig';
 import type { OrdenServicio } from '../context/AppContext';
 
-// DTO que coincide con tu backend Java
-interface OrdenBackendDTO {
-  id?: number; // En backend es Long, aquí number
-  cliente: string;
-  telefono: string;
-  dispositivo: string;
-  marcaModelo: string;
-  password?: string;
-  fallaReportada?: string;
-  accesorios?: string;
-  estado: 'PENDIENTE' | 'EN_PROCESO' | 'TERMINADO' | 'CANCELADO';
-  fechaIngreso: string; // Backend: fechaRecepcion
-  total: number;
-}
-
 // Convertir de formato frontend a backend
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
   const payload: any = {
