@@ -6,6 +6,7 @@ import { ordenesService } from '../../services/order.services';
 
 interface OrdenServicio {
   id: string;
+  displayId?: string;
   cliente: string;
   telefono: string;
   dispositivo: string;
@@ -164,15 +165,18 @@ const OrdersPage: React.FC = () => {
   };
 
   const ordenesFiltradas = ordenes.filter(o => {
-    const matchesSearch = o.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.marcaModelo.toLowerCase().includes(searchTerm.toLowerCase());
+  const searchTermLower = searchTerm.toLowerCase();
+  const matchesSearch = 
+    (o.cliente?.toLowerCase() || '').includes(searchTermLower) ||
+    (o.id?.toLowerCase() || '').includes(searchTermLower) ||
+    (o.marcaModelo?.toLowerCase() || '').includes(searchTermLower);
 
-    if (activeTab === 'activas') {
-      return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
-    }
-    return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Cancelado');
-  });
+  if (activeTab === 'activas') {
+    return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
+  }
+  // Pestaña historial
+  return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Cancelado');
+});
 
   return (
     <div className="orders-container">
