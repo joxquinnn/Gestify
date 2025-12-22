@@ -16,7 +16,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
   };
 };
 
-const mapEstadoBackendToFrontend = (est: string) => {
+const mapEstado = (est: string): 'Pendiente' | 'En Proceso' | 'Terminado' | 'Cancelado' => {
   const e = est?.toUpperCase() || '';
   if (e === 'RECIBIDO' || e === 'PENDIENTE') return 'Pendiente';
   if (e === 'EN_PROCESO' || e === 'REPARACION' || e === 'DIAGNOSTICO') return 'En Proceso';
@@ -27,7 +27,7 @@ const mapEstadoBackendToFrontend = (est: string) => {
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
   return {
-    id: `OS-${orden.id}`,
+    id: String(orden.id),
     cliente: orden.cliente?.nombre || 'Sin cliente',
     telefono: orden.cliente?.telefono || '',
     dispositivo: 'Celular', 
@@ -35,7 +35,7 @@ const toFrontendFormat = (orden: any): OrdenServicio => {
     password: '',
     fallaReportada: orden.diagnosticoInicial || '', 
     accesorios: orden.condicionFisica || '', 
-    estado: mapEstadoBackendToFrontend(orden.estado),
+    estado: mapEstado(orden.estado),
     fechaIngreso: orden.fechaRecepcion 
       ? new Date(orden.fechaRecepcion).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0],
@@ -113,24 +113,17 @@ export const ordenesService = {
 
   // Cambiar estado de orden
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
-  try {
-    // 1. Limpiar el ID para el Backend: de "OS-12" a "12"
-    const numericId = String(id).replace('OS-', '');
-    
-    // 2. Formatear el estado para el Backend
-    const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
-    
-    // 3. Petición usando el ID numérico
-    const response = await api.put(
-      `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
-    );
-    
-    // 4. Convertir la respuesta (que trae el cliente lleno) de vuelta al formato visual
-    return toFrontendFormat(response.data);
-  } catch (error) {
-    console.error('❌ Error al cambiar estado:', error);
-    throw error;
-  }
+  // Limpiamos CUALQUIER letra. Si mandas "OS-5", solo enviará "5"
+  const numericId = id.replace(/\D/g, ''); 
+  
+  const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
+  
+  // Ahora la URL será limpia: /api/ordenes/5/estado
+  const response = await api.put(
+    `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
+  );
+  
+  return toFrontendFormat(response.data);
 },
 
   //  Obtener órdenes recientes
