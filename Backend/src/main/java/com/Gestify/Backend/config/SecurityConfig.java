@@ -43,7 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Permitir acceso sin autenticación a estos endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/ordenes/**").authenticated()
+                        .requestMatchers("/api/clientes/**").permitAll()
+                        .requestMatchers("/api/ordenes/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
@@ -61,8 +62,7 @@ public class SecurityConfig {
         // Orígenes permitidos
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "https://gestifystc.vercel.app" 
-        ));
+                "https://gestifystc.vercel.app"));
 
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

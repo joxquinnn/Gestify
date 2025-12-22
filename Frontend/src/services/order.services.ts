@@ -20,23 +20,17 @@ interface OrdenBackendDTO {
 // Convertir de formato frontend a backend
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
   const payload: any = {
-    //  Mapear campos correctamente según OrdenDeServicio.java
-    equipoModelo: orden.marcaModelo || '', 
-    equipoSerie: '', 
+    equipoModelo: orden.marcaModelo || '',
     diagnosticoInicial: orden.fallaReportada || '',
-    condicionFisica: orden.accesorios || '', 
-    estado: orden.estado?.toUpperCase().replace(/\s+/g, '_') || 'RECIBIDO',
-    costoTotal: orden.total || 0, 
-    
-    
+    condicionFisica: orden.accesorios || '',
+    estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO',
+    costoTotal: orden.total || 0,
   };
 
-  //  Cliente como objeto con ID (relación @ManyToOne)
   if (clienteId) {
     payload.cliente = { id: clienteId };
   }
 
-  console.log('📦 Payload para backend:', JSON.stringify(payload, null, 2));
   return payload;
 };
 

@@ -27,7 +27,7 @@ const CHECKLISTS_POR_TIPO: Record<string, string[]> = {
 
 const OrdersPage: React.FC = () => {
   const { ordenes, setOrdenes, clientes, configuracion, actualizarOrden, eliminarOrden } = useAppContext();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrdenServicio | null>(null);
@@ -62,9 +62,9 @@ const OrdersPage: React.FC = () => {
   const enviarWhatsApp = (orden: OrdenServicio) => {
     const nombreEmpresa = configuracion?.nombreNegocio || "Servicio Técnico";
     const mensaje = `Hola *${orden.cliente}*, te contactamos de *${nombreEmpresa}*.%0A%0A` +
-    `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
-    `se encuentra en estado: *${orden.estado}*.%0A%0A` +
-    `¡Te esperamos!`;
+      `Te informamos que tu equipo *${orden.marcaModelo}* (Orden: ${orden.id}) ` +
+      `se encuentra en estado: *${orden.estado}*.%0A%0A` +
+      `¡Te esperamos!`;
     const telLimpio = orden.telefono.replace(/\D/g, '');
     window.open(`https://wa.me/${telLimpio}?text=${mensaje}`, '_blank');
   };
@@ -75,6 +75,14 @@ const OrdersPage: React.FC = () => {
     setIsSaving(true);
 
     try {
+      const clienteEncontrado = clientes.find(c => c.nombre === nuevaOrden.cliente);
+
+      if (!clienteEncontrado) {
+        alert('Por favor selecciona un cliente válido');
+        setIsSaving(false);
+        return;
+      }
+
       const nuevaOS: Omit<OrdenServicio, 'id'> = {
         cliente: nuevaOrden.cliente,
         telefono: nuevaOrden.telefono,
@@ -82,18 +90,19 @@ const OrdersPage: React.FC = () => {
         marcaModelo: nuevaOrden.marcaModelo,
         password: nuevaOrden.password,
         fallaReportada: nuevaOrden.fallaReportada,
-        accesorios: accesoriosSeleccionados.join(', '),
+        accesorios: accesoriosSeleccionados.join(', ') + (nuevaOrden.accesorios ? `. ${nuevaOrden.accesorios}` : ''),
         estado: 'Pendiente',
         fechaIngreso: new Date().toISOString().split('T')[0],
         total: Number(nuevaOrden.presupuesto) || 0
       };
 
-      console.log('💾 Guardando nueva orden en backend...');
-      const ordenCreada = await ordenesService.crearOrden(nuevaOS);
-      
-      // Actualizar estado local
+      console.log('💾 Guardando en Railway para el cliente ID:', clienteEncontrado.id);
+
+      // --- CAMBIO: Pasar el ID del cliente como segundo argumento ---
+      const ordenCreada = await ordenesService.crearOrden(nuevaOS, clienteEncontrado.id);
+
       setOrdenes([ordenCreada, ...ordenes]);
-      
+
       // Limpiar formulario
       setAccesoriosSeleccionados([]);
       setIsModalOpen(false);
@@ -102,11 +111,10 @@ const OrdersPage: React.FC = () => {
         password: '', fallaReportada: '', accesorios: '', presupuesto: '' as any
       });
 
-      alert('✅ Orden creada exitosamente');
-      console.log('✅ Orden guardada:', ordenCreada);
+      alert('✅ Orden guardada en la base de datos');
     } catch (error) {
-      console.error('❌ Error al guardar orden:', error);
-      alert('Error al crear la orden. Por favor intenta nuevamente.');
+      console.error('❌ Error:', error);
+      alert('Error al guardar. Revisa que el cliente exista en el sistema.');
     } finally {
       setIsSaving(false);
     }
@@ -116,16 +124,16 @@ const OrdersPage: React.FC = () => {
   const handleStatusChange = async (id: string, nuevoEstado: string) => {
     try {
       console.log('🔄 Cambiando estado de orden:', id, '→', nuevoEstado);
-      
+
       const ordenActualizada = await ordenesService.cambiarEstado(id, nuevoEstado);
-      
+
       // Actualizar estado local
       setOrdenes(ordenes.map(o => o.id === id ? ordenActualizada : o));
-      
+
       if (selectedOrder && selectedOrder.id === id) {
         setSelectedOrder(ordenActualizada);
       }
-      
+
       console.log('✅ Estado actualizado correctamente');
     } catch (error) {
       console.error('❌ Error al cambiar estado:', error);
@@ -179,14 +187,14 @@ const OrdersPage: React.FC = () => {
       </div>
 
       <div className="orders-tabs">
-        <button 
-          className={activeTab === 'activas' ? 'active' : ''} 
+        <button
+          className={activeTab === 'activas' ? 'active' : ''}
           onClick={() => setActiveTab('activas')}
         >
           Activas ({ordenes.filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso').length})
         </button>
-        <button 
-          className={activeTab === 'finalizadas' ? 'active' : ''} 
+        <button
+          className={activeTab === 'finalizadas' ? 'active' : ''}
           onClick={() => setActiveTab('finalizadas')}
         >
           Historial / Finalizadas
@@ -194,12 +202,12 @@ const OrdersPage: React.FC = () => {
       </div>
 
       <div className="search-bar-container">
-        <input 
-          type="text" 
-          placeholder="Buscar por Folio, Cliente o Modelo..." 
-          className="search-input" 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
+        <input
+          type="text"
+          placeholder="Buscar por Folio, Cliente o Modelo..."
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
@@ -212,9 +220,9 @@ const OrdersPage: React.FC = () => {
               <div className="form-grid">
                 <div className="form-group">
                   <label>Seleccionar Cliente</label>
-                  <select 
-                    required 
-                    value={nuevaOrden.cliente} 
+                  <select
+                    required
+                    value={nuevaOrden.cliente}
                     onChange={(e) => handleSelectCliente(e.target.value)}
                     disabled={isSaving}
                   >
@@ -226,21 +234,21 @@ const OrdersPage: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>WhatsApp (Autocompletado)</label>
-                  <input 
-                    type="text" 
-                    readOnly 
-                    value={nuevaOrden.telefono} 
-                    style={{ backgroundColor: '#f8fafc', cursor: 'not-allowed' }} 
+                  <input
+                    type="text"
+                    readOnly
+                    value={nuevaOrden.telefono}
+                    style={{ backgroundColor: '#f8fafc', cursor: 'not-allowed' }}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label>Tipo de Equipo</label>
-                  <select 
-                    value={nuevaOrden.dispositivo} 
+                  <select
+                    value={nuevaOrden.dispositivo}
                     onChange={(e) => {
                       setNuevaOrden({ ...nuevaOrden, dispositivo: e.target.value });
                       setAccesoriosSeleccionados([]);
@@ -253,52 +261,52 @@ const OrdersPage: React.FC = () => {
                     <option value="Tablet">Tablet</option>
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Marca y Modelo</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={nuevaOrden.marcaModelo} 
+                  <input
+                    type="text"
+                    required
+                    value={nuevaOrden.marcaModelo}
                     onChange={(e) => setNuevaOrden({ ...nuevaOrden, marcaModelo: e.target.value })}
                     disabled={isSaving}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label>Patrón / Contraseña</label>
-                  <input 
-                    type="text" 
-                    value={nuevaOrden.password} 
+                  <input
+                    type="text"
+                    value={nuevaOrden.password}
                     onChange={(e) => setNuevaOrden({ ...nuevaOrden, password: e.target.value })}
                     disabled={isSaving}
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label>Costo Reparación</label>
-                  <input 
-                    type="number" 
-                    value={nuevaOrden.presupuesto} 
+                  <input
+                    type="number"
+                    value={nuevaOrden.presupuesto}
                     placeholder="Ej: 15000"
-                    onChange={(e) => setNuevaOrden({ 
-                      ...nuevaOrden, 
-                      presupuesto: e.target.value === '' ? '' : Number(e.target.value) 
+                    onChange={(e) => setNuevaOrden({
+                      ...nuevaOrden,
+                      presupuesto: e.target.value === '' ? '' : Number(e.target.value)
                     })}
                     disabled={isSaving}
                   />
                 </div>
-                
+
                 <div className="form-group full-width">
                   <label>Servicio Requerido</label>
-                  <textarea 
-                    required 
-                    value={nuevaOrden.fallaReportada} 
+                  <textarea
+                    required
+                    value={nuevaOrden.fallaReportada}
                     onChange={(e) => setNuevaOrden({ ...nuevaOrden, fallaReportada: e.target.value })}
                     disabled={isSaving}
                   />
                 </div>
-                
+
                 <div className="form-group full-width">
                   <label style={{ marginBottom: '10px', display: 'block' }}>
                     Estado Físico / Accesorios ({nuevaOrden.dispositivo})
@@ -325,18 +333,18 @@ const OrdersPage: React.FC = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="modal-actions">
-                <button 
-                  type="button" 
-                  className="btn-cancel" 
+                <button
+                  type="button"
+                  className="btn-cancel"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isSaving}
                 >
                   Cancelar
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn-save"
                   disabled={isSaving}
                 >
@@ -372,8 +380,8 @@ const OrdersPage: React.FC = () => {
                     <option value="Cancelado">Cancelado</option>
                   </select>
                 </div>
-                <button 
-                  className="btn-delete-order" 
+                <button
+                  className="btn-delete-order"
                   onClick={() => {
                     eliminarOrden(selectedOrder.id);
                     setIsDetailsOpen(false);
@@ -396,9 +404,9 @@ const OrdersPage: React.FC = () => {
                       <input
                         className="edit-mode-input"
                         value={selectedOrder.marcaModelo}
-                        onChange={(e) => setSelectedOrder({ 
-                          ...selectedOrder, 
-                          marcaModelo: e.target.value 
+                        onChange={(e) => setSelectedOrder({
+                          ...selectedOrder,
+                          marcaModelo: e.target.value
                         })}
                       />
                     ) : (
@@ -406,7 +414,7 @@ const OrdersPage: React.FC = () => {
                     )}
                   </p>
                   <p>
-                    <strong>Clave:</strong> 
+                    <strong>Clave:</strong>
                     <span className="password-tag">
                       {selectedOrder.password || 'Sin clave'}
                     </span>
@@ -418,9 +426,9 @@ const OrdersPage: React.FC = () => {
                     <input
                       className="edit-mode-input"
                       value={selectedOrder.accesorios}
-                      onChange={(e) => setSelectedOrder({ 
-                        ...selectedOrder, 
-                        accesorios: e.target.value 
+                      onChange={(e) => setSelectedOrder({
+                        ...selectedOrder,
+                        accesorios: e.target.value
                       })}
                     />
                   ) : (
@@ -436,9 +444,9 @@ const OrdersPage: React.FC = () => {
                     <textarea
                       className="edit-mode-input"
                       value={selectedOrder.fallaReportada}
-                      onChange={(e) => setSelectedOrder({ 
-                        ...selectedOrder, 
-                        fallaReportada: e.target.value 
+                      onChange={(e) => setSelectedOrder({
+                        ...selectedOrder,
+                        fallaReportada: e.target.value
                       })}
                     />
                   ) : (
@@ -455,9 +463,9 @@ const OrdersPage: React.FC = () => {
                       type="number"
                       className="edit-mode-input"
                       value={selectedOrder.total}
-                      onChange={(e) => setSelectedOrder({ 
-                        ...selectedOrder, 
-                        total: Number(e.target.value) 
+                      onChange={(e) => setSelectedOrder({
+                        ...selectedOrder,
+                        total: Number(e.target.value)
                       })}
                     />
                   ) : (
@@ -471,38 +479,38 @@ const OrdersPage: React.FC = () => {
 
             <div className="modal-actions no-print">
               {isEditing ? (
-                <button 
-                  className="btn-save" 
+                <button
+                  className="btn-save"
                   onClick={handleConfirmEdit}
                   disabled={isSaving}
                 >
                   {isSaving ? '⏳ Guardando...' : '💾 Guardar Cambios'}
                 </button>
               ) : (
-                <button 
-                  className="btn-edit" 
+                <button
+                  className="btn-edit"
                   onClick={() => setIsEditing(true)}
                 >
                   ✏️ Editar Datos
                 </button>
               )}
-              <button 
-                className="btn-whatsapp" 
+              <button
+                className="btn-whatsapp"
                 onClick={() => enviarWhatsApp(selectedOrder)}
               >
                 Notificar WhatsApp
               </button>
-              <button 
-                className="btn-print" 
+              <button
+                className="btn-print"
                 onClick={() => generarPDFOrden(selectedOrder, configuracion)}
               >
                 Descargar PDF
               </button>
-              <button 
-                className="btn-cancel" 
-                onClick={() => { 
-                  setIsDetailsOpen(false); 
-                  setIsEditing(false); 
+              <button
+                className="btn-cancel"
+                onClick={() => {
+                  setIsDetailsOpen(false);
+                  setIsEditing(false);
                 }}
               >
                 Cerrar
@@ -533,7 +541,7 @@ const OrdersPage: React.FC = () => {
                   <td><strong>{orden.id}</strong></td>
                   <td>{orden.cliente}</td>
                   <td>
-                    <span className="device-type-tag">{orden.dispositivo}</span> 
+                    <span className="device-type-tag">{orden.dispositivo}</span>
                     {orden.marcaModelo}
                   </td>
                   <td>{orden.fechaIngreso}</td>
@@ -544,8 +552,8 @@ const OrdersPage: React.FC = () => {
                   </td>
                   <td>${orden.total.toLocaleString()}</td>
                   <td>
-                    <button 
-                      className="action-btn view" 
+                    <button
+                      className="action-btn view"
                       onClick={() => handleViewDetails(orden)}
                     >
                       Detalles
