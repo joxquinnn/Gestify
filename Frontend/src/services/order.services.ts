@@ -6,11 +6,12 @@ import type { OrdenServicio } from '../context/AppContext';
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
   return {
     equipoModelo: orden.marcaModelo || '',
-    equipoSerie: 'N/A', 
+    equipoSerie: 'N/A',
     tipoEquipo: orden.dispositivo || 'Celular', 
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
-    estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO', 
+    // Aseguramos que el estado sea el que el Enum de Java espera
+    estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO',
     costoTotal: orden.total || 0,
     cliente: clienteId ? { id: clienteId } : null
   };
@@ -109,31 +110,24 @@ export const ordenesService = {
 
   // Cambiar estado de orden
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
-  try {
-    if (!id || id === 'undefined') {
-      console.error('❌ ID de orden no válido para cambiar estado');
-      throw new Error('ID de orden no definido');
+    try {
+      console.log('🔄 Cambiando estado:', id, '→', nuevoEstado);
+      
+      const numericId = id.replace('OS-', '');
+      const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
+      
+      // Tu backend usa @RequestParam, así que enviamos como query param
+      const response = await api.put(
+        `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
+      );
+      
+      console.log('✅ Estado actualizado:', response.data);
+      return toFrontendFormat(response.data);
+    } catch (error) {
+      console.error('❌ Error al cambiar estado:', error);
+      throw error;
     }
-
-    console.log('🔄 Cambiando estado de orden:', id, '→', nuevoEstado);
-    
-    
-    const numericId = String(id).replace('OS-', '');
-    
-    const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
-    
-    
-    const response = await api.put(
-      `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
-    );
-    
-    console.log('✅ Estado actualizado en servidor:', response.data);
-    return toFrontendFormat(response.data);
-  } catch (error) {
-    console.error('❌ Error al cambiar estado:', error);
-    throw error;
-  }
-},
+  },
 
   //  Obtener órdenes recientes
   async getOrdenesRecientes(limit: number = 5): Promise<OrdenServicio[]> {
