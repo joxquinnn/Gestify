@@ -22,13 +22,9 @@ public class OrdenDeServicioController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveOrder(
-            @RequestBody OrdenDeServicio order,
-            Authentication auth) {
+    public ResponseEntity<?> saveOrder(@RequestBody OrdenDeServicio order, Authentication auth) {
         try {
-            // Obtener email del usuario autenticado
             String userEmail = auth.getName();
-            
             OrdenDeServicio newOrder = ordenService.saveOrder(order, userEmail);
             return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -36,7 +32,7 @@ public class OrdenDeServicioController {
                     .body(Map.of("error", "Error al crear la orden", "message", e.getMessage()));
         }
     }
- 
+
     @GetMapping
     public ResponseEntity<List<OrdenDeServicio>> findAll(Authentication auth) {
         String userEmail = auth.getName();
@@ -65,10 +61,10 @@ public class OrdenDeServicioController {
             Authentication auth) {
         try {
             String userEmail = auth.getName();
-            
+
             // Asignar el ID de la URL al objeto
             order.setId(id);
-            
+
             OrdenDeServicio ordenActualizada = ordenService.saveOrder(order, userEmail);
             return ResponseEntity.ok(ordenActualizada);
         } catch (Exception e) {
@@ -97,24 +93,22 @@ public class OrdenDeServicioController {
             Authentication auth) {
         String userEmail = auth.getName();
         List<OrdenDeServicio> orders = ordenService.findByEstadoAndUserEmail(
-                valor.toUpperCase(), 
-                userEmail
-        );
+                valor.toUpperCase(),
+                userEmail);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/estado")
     public ResponseEntity<?> setEstado(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @RequestParam String newEstado,
             Authentication auth) {
         try {
             String userEmail = auth.getName();
             OrdenDeServicio ordenActualizada = ordenService.setEstado(
-                    id, 
-                    newEstado.toUpperCase(), 
-                    userEmail
-            );
+                    id,
+                    newEstado.toUpperCase(),
+                    userEmail);
             return new ResponseEntity<>(ordenActualizada, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -133,7 +127,7 @@ public class OrdenDeServicioController {
             stats.put("listo", ordenService.countByEstadoAndUserEmail("LISTO", userEmail));
             stats.put("entregado", ordenService.countByEstadoAndUserEmail("ENTREGADO", userEmail));
             stats.put("total", ordenService.countByUserEmail(userEmail));
-            
+
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

@@ -4,19 +4,17 @@ import type { OrdenServicio } from '../context/AppContext';
 
 // Convertir de formato frontend a backend
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
-  const payload: any = {
+  return {
     equipoModelo: orden.marcaModelo || '',
+    equipoSerie: 'N/A',
+    tipoEquipo: orden.dispositivo || 'Celular', 
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
+    // Aseguramos que el estado sea el que el Enum de Java espera
     estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO',
     costoTotal: orden.total || 0,
+    cliente: clienteId ? { id: clienteId } : null
   };
-
-  if (clienteId) {
-    payload.cliente = { id: clienteId };
-  }
-
-  return payload;
 };
 
 // Convertir de formato backend a frontend

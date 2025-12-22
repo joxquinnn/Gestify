@@ -18,17 +18,20 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtService jwtService;
+
     public void registrarUsuario(RegistroDTO dto) throws Exception {
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new Exception("El email ya está registrado");
         }
-        
+
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
-        
+
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
-        
+
         usuarioRepository.save(usuario);
     }
 
@@ -40,7 +43,7 @@ public class AuthService {
             throw new Exception("Contraseña incorrecta");
         }
 
-        String tokenSimulado = "jwt-token-generado-para-" + usuario.getEmail();
-        return new AuthResponseDTO(tokenSimulado, usuario.getEmail(), usuario.getNombre());
+        String tokenReal = jwtService.generateToken(usuario.getEmail());
+        return new AuthResponseDTO(tokenReal, usuario.getEmail(), usuario.getNombre());
     }
 }

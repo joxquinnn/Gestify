@@ -1,5 +1,6 @@
 package com.Gestify.Backend.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,34 +24,36 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Deshabilitar CSRF (necesario para APIs REST)
+                // 1. Deshabilitar CSRF
                 .csrf(csrf -> csrf.disable())
 
-                // Deshabilitar form login y http basic
-                .formLogin(formLogin -> formLogin.disable())
-                .httpBasic(httpBasic -> httpBasic.disable())
+                // 2. Deshabilitar form login y http basic
+                .formLogin(form -> form.disable())
+                .httpBasic(h -> h.disable())
 
-                // Habilitar CORS
+                // 3. Habilitar CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Configurar sesiones como STATELESS (sin sesión en servidor)
+                // 4. Sesiones STATELESS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Configurar autorización de endpoints
+                // 5. Autorización
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir acceso sin autenticación a estos endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/clientes/**").permitAll()
-                        .requestMatchers("/api/ordenes/**").permitAll()
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-
-                        .requestMatchers("/api/**").permitAll()
-
+                        .requestMatchers("/api/ordenes/**").authenticated()
+                        .requestMatchers("/api/clientes/**").authenticated()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
                         .anyRequest().authenticated());
+
+        // 6. Añadir el filtro JWT
+        http.addFilterBefore(jwtAuthFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
