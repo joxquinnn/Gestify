@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import '../styles/RegisterPage.styles.css';
 
@@ -113,7 +113,7 @@ const RegisterPage: React.FC = () => {
                 </form>
                 
                 <p className="login-link">
-                    ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
+                    ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
                 </p>
             </div>
         </div>
