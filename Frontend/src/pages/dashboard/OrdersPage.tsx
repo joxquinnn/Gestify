@@ -415,9 +415,21 @@ const OrdersPage: React.FC = () => {
                   </p>
                   <p>
                     <strong>Clave:</strong>
-                    <span className="password-tag">
-                      {selectedOrder.password || 'Sin clave'}
-                    </span>
+                    {isEditing ? (
+                      <input
+                        className="edit-mode-input"
+                        value={selectedOrder.password || ''}
+                        onChange={(e) => setSelectedOrder({
+                          ...selectedOrder,
+                          password: e.target.value
+                        })}
+                        placeholder="Patrón / Contraseña"
+                      />
+                    ) : (
+                      <span className="password-tag">
+                        {selectedOrder.password || 'Sin clave'}
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="accesorios-box">

@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ordenes_servicio", indexes = {
-    @Index(name = "idx_user_email", columnList = "user_email"),
-    @Index(name = "idx_estado", columnList = "estado"),
-    @Index(name = "idx_user_email_estado", columnList = "user_email, estado")
+        @Index(name = "idx_user_email", columnList = "user_email"),
+        @Index(name = "idx_estado", columnList = "estado"),
+        @Index(name = "idx_user_email_estado", columnList = "user_email, estado")
 })
 @Data
 @NoArgsConstructor
@@ -39,6 +39,9 @@ public class OrdenDeServicio {
     @Column(name = "equipo_serie", length = 100)
     private String equipoSerie;
 
+    @Column(name = "patron_contrasena", length = 100)
+    private String patronContrasena;
+
     @Column(name = "diagnostico_inicial", columnDefinition = "TEXT")
     private String diagnosticoInicial;
 
@@ -51,14 +54,14 @@ public class OrdenDeServicio {
 
     @Column(name = "costo_total", precision = 10, scale = 2)
     private BigDecimal costoTotal = BigDecimal.ZERO;
-    
+
     // Campos de auditoría
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -70,10 +73,10 @@ public class OrdenDeServicio {
             estado = "RECIBIDO";
         }
     }
-    
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    
+
 }

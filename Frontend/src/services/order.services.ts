@@ -7,7 +7,8 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
   return {
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
-    tipoEquipo: orden.dispositivo || 'Celular', 
+    tipoEquipo: orden.dispositivo || 'Celular',
+    patronContrasena: orden.password || '', 
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
     // Aseguramos que el estado sea el que el Enum de Java espera
@@ -25,7 +26,7 @@ const toFrontendFormat = (orden: any): OrdenServicio => {
     telefono: orden.cliente?.telefono || '',
     dispositivo: 'Celular', 
     marcaModelo: orden.equipoModelo || '', 
-    password: '',
+    password: orden.patronContrasena || '',
     fallaReportada: orden.diagnosticoInicial || '', 
     accesorios: orden.condicionFisica || '', 
     estado: (orden.estado || 'RECIBIDO')
