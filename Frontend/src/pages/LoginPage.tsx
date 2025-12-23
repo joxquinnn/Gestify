@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.styles.css';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
@@ -159,7 +159,7 @@ const LoginPage: React.FC = () => {
                     </div>
 
                     <div className="login-footer">
-                        ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+                        ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
                     </div>
                 </form>
             </div>
