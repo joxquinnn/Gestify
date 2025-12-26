@@ -39,6 +39,9 @@ public class OrdenDeServicio {
     @Column(name = "tipo_equipo", length = 50)
     private String tipoEquipo;
 
+    @Column(name = "equipo_serie", length = 100)
+    private String equipoSerie;
+
     @Column(name = "patron_contrasena", length = 100)
     private String patronContrasena;
 
