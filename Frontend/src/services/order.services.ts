@@ -99,17 +99,15 @@ export const ordenesService = {
     try {
       const numericId = parseInt(id);
 
-      // Construimos el objeto EXACTO que espera el Controller de Java
       const body = {
-        id: numericId, // El ID debe ir dentro del JSON también
+        id: numericId, 
         equipoModelo: orden.marcaModelo,
         tipoEquipo: orden.dispositivo,
         patronContrasena: orden.password || '',
         diagnosticoInicial: orden.fallaReportada,
         condicionFisica: orden.accesorios,
-        estado: this.mapearEstadoABackend(orden.estado), // Asegúrate de mapear a RECIBIDO, EN_REPARACION, etc.
+        estado: this.mapearEstadoABackend(orden.estado),
         costoTotal: orden.total,
-        // IMPORTANTE: Spring necesita el objeto cliente con su ID para vincularlo
         cliente: {
           id: clienteId
         }
