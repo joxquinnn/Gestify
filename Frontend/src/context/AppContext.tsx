@@ -25,7 +25,6 @@ interface BusinessConfig {
 export interface OrdenServicio {
     id: string;
     cliente: string;
-    clienteId?: number; // ✅ CAMPO AGREGADO
     telefono: string;
     dispositivo: string;
     marcaModelo: string;
@@ -71,7 +70,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sitioWeb: 'www.gestify.cl'
     });
 
-    // CARGAR ÓRDENES DESDE BACKEND
+    //  CARGAR ÓRDENES DESDE BACKEND (PostgreSQL en Railway)
     const cargarOrdenes = async () => {
         if (!isAuthenticated) {
             console.log('⚠️ Usuario no autenticado, no se pueden cargar órdenes');
@@ -86,6 +85,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } catch (error: any) {
             console.error('❌ Error al cargar órdenes desde DB:', error);
             
+            // Mensaje específico según el error
             if (error.response?.status === 401) {
                 console.error('🔒 Token expirado, redirigiendo a login...');
             } else if (!error.response) {
@@ -96,7 +96,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // CARGAR CLIENTES DESDE BACKEND
+    //  CARGAR CLIENTES DESDE BACKEND (PostgreSQL en Railway)
     const cargarClientes = async () => {
         if (!isAuthenticated) {
             console.log('⚠️ Usuario no autenticado, no se pueden cargar clientes');
@@ -114,7 +114,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // AGREGAR CLIENTE
+    //  AGREGAR CLIENTE (EN BACKEND)
     const agregarCliente = async (cliente: Omit<Cliente, 'id'>) => {
         try {
             console.log('💾 Guardando cliente en PostgreSQL...');
@@ -127,7 +127,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // ELIMINAR CLIENTE
+    //  ELIMINAR CLIENTE (EN BACKEND)
     const eliminarCliente = async (id: number) => {
         try {
             console.log('🗑️ Eliminando cliente de PostgreSQL...');
@@ -140,7 +140,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // CARGAR CONFIGURACIÓN
+    //  CARGAR CONFIGURACIÓN (Solo en localStorage por ahora)
     const cargarConfiguracion = () => {
         if (!user?.email) return;
         
@@ -155,6 +155,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 console.error('❌ Error al cargar configuración:', error);
             }
         } else {
+            // Configuración por defecto
             const defaultConfig = {
                 nombreNegocio: `Servicio Técnico ${user.nombre}`,
                 rut: '12.345.678-9',
@@ -168,7 +169,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // EFECTO: Cargar datos cuando usuario esté autenticado
+    //  EFECTO: Cargar datos cuando usuario esté autenticado
     useEffect(() => {
         const inicializarDatos = async () => {
             if (isAuthenticated && user?.email) {
@@ -184,6 +185,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setLoading(false);
                 console.log('✅ Datos inicializados correctamente');
             } else {
+                // Usuario no autenticado: limpiar todo
                 console.log('🔒 No hay usuario autenticado, limpiando datos...');
                 setOrdenes([]);
                 setClientes([]);
@@ -202,17 +204,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         inicializarDatos();
     }, [isAuthenticated, user?.email]);
 
-    // ✅ ACTUALIZAR ORDEN (CON clienteId)
+    //  ACTUALIZAR ORDEN (EN POSTGRESQL)
     const actualizarOrden = async (ordenActualizada: OrdenServicio) => {
         try {
             console.log('🔄 Actualizando orden en PostgreSQL:', ordenActualizada.id);
-            console.log('📋 Datos completos:', ordenActualizada);
-            console.log('👤 Cliente ID:', ordenActualizada.clienteId);
-
             const ordenBackend = await ordenesService.actualizarOrden(
-                ordenActualizada.id,
-                ordenActualizada,
-                ordenActualizada.clienteId 
+                ordenActualizada.id, 
+                ordenActualizada
             );
             
             // Actualizar estado local
@@ -228,7 +226,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // ELIMINAR ORDEN
+    //  ELIMINAR ORDEN (EN POSTGRESQL)
     const eliminarOrden = async (id: string) => {
         if (!window.confirm("¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.")) {
             return;
@@ -238,6 +236,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             console.log('🗑️ Eliminando orden de PostgreSQL:', id);
             await ordenesService.eliminarOrden(id);
             
+            // Actualizar estado local
             setOrdenes(prev => prev.filter(o => o.id !== id));
             
             console.log('✅ Orden eliminada de DB');
@@ -248,7 +247,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    // GUARDAR CONFIGURACIÓN
+    //  GUARDAR CONFIGURACIÓN 
     useEffect(() => {
         if (user?.email) {
             const configKey = `gestify_config_${user.email}`;
