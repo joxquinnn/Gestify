@@ -12,10 +12,12 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
     'Entregado': 'ENTREGADO'
   };
 
+  const rawId = orden.id?.replace('OS-', '');
+
   const estadoBackend = orden.estado ? estadoFrontendToBackend[orden.estado] || 'RECIBIDO' : 'RECIBIDO';
 
   return {
-    id: orden.id,
+    id: rawId ? parseInt(rawId) : undefined,
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
     tipoEquipo: orden.dispositivo || 'Celular',
@@ -97,10 +99,16 @@ export const ordenesService = {
   //  Actualizar orden existente
   async actualizarOrden(id: string, orden: OrdenServicio, clienteId: number): Promise<OrdenServicio> {
     try {
-      const numericId = parseInt(id);
+      // Limpiar el ID si viene con el prefijo "OS-"
+      const cleanId = id.replace('OS-', '');
+      const numericId = parseInt(cleanId);
+
+      if (isNaN(numericId)) {
+        throw new Error(`ID no válido: ${id}`);
+      }
 
       const body = {
-        id: numericId, 
+        id: numericId,
         equipoModelo: orden.marcaModelo,
         tipoEquipo: orden.dispositivo,
         patronContrasena: orden.password || '',
@@ -112,8 +120,6 @@ export const ordenesService = {
           id: clienteId
         }
       };
-
-      console.log('📤 Cuerpo enviado al backend:', body);
 
       const response = await api.put(`/ordenes/${numericId}`, body);
       return toFrontendFormat(response.data);
