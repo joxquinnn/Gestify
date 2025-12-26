@@ -2,13 +2,11 @@ package com.Gestify.Backend.services;
 
 import com.Gestify.Backend.entities.OrdenDeServicio;
 import com.Gestify.Backend.entities.Cliente;
-import com.Gestify.Backend.entities.DetalleOrdenItem;
 import com.Gestify.Backend.repository.OrdenDeServicioRepository;
 import com.Gestify.Backend.repository.DetalleOrdenItemRepository;
 import com.Gestify.Backend.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,11 +19,11 @@ public class OrdenDeServicioService {
     private final RepuestoService repuestoService;
 
     public OrdenDeServicioService(
-        OrdenDeServicioRepository ordenRepository, 
-        DetalleOrdenItemRepository detalleRepository,
-        ClienteRepository clienteRepository,
-        RepuestoService repuestoService) {
-        
+            OrdenDeServicioRepository ordenRepository,
+            DetalleOrdenItemRepository detalleRepository,
+            ClienteRepository clienteRepository,
+            RepuestoService repuestoService) {
+
         this.ordenRepository = ordenRepository;
         this.detalleRepository = detalleRepository;
         this.clienteRepository = clienteRepository;
@@ -47,38 +45,63 @@ public class OrdenDeServicioService {
 
     @Transactional
     public OrdenDeServicio saveOrder(OrdenDeServicio order, String userEmail) throws Exception {
-        
-        if (order.getCliente() != null && order.getCliente().getId() != null) {
+
+        if (order.getId() != null) {
+            // === ACTUALIZACIÓN ===
+            OrdenDeServicio existente = findByIdAndUserEmail(order.getId(), userEmail);
+
+            // Si no viene cliente en la petición, mantener el cliente existente
+            if (order.getCliente() == null || order.getCliente().getId() == null) {
+                System.out.println("⚠️ No se envió cliente, manteniendo el existente");
+                order.setCliente(existente.getCliente());
+            } else {
+                Long clienteId = order.getCliente().getId();
+
+                System.out.println("🔍 Validando cliente ID: " + clienteId + " para usuario: " + userEmail);
+
+                boolean clientePertenece = clienteRepository
+                        .existsByIdAndUserEmail(clienteId, userEmail);
+
+                if (!clientePertenece) {
+                    throw new Exception("El cliente seleccionado no existe o no tienes permiso para usarlo");
+                }
+
+                Cliente cliente = clienteRepository.findByIdAndUserEmail(clienteId, userEmail)
+                        .orElseThrow(() -> new Exception("Cliente no encontrado"));
+
+                order.setCliente(cliente);
+            }
+
+            order.setUserEmail(existente.getUserEmail());
+
+        } else {
+            // === CREACIÓN ===
+            if (order.getCliente() == null || order.getCliente().getId() == null) {
+                throw new Exception("Debe especificar un cliente válido para la orden");
+            }
+
             Long clienteId = order.getCliente().getId();
-            
-            // Verificar que el cliente existe Y pertenece al usuario
+
+            System.out.println("🔍 Validando cliente ID: " + clienteId + " para usuario: " + userEmail);
+
             boolean clientePertenece = clienteRepository
                     .existsByIdAndUserEmail(clienteId, userEmail);
-            
+
             if (!clientePertenece) {
                 throw new Exception("El cliente seleccionado no existe o no tienes permiso para usarlo");
             }
-            
-            // Cargar el cliente completo desde la base de datos
+
             Cliente cliente = clienteRepository.findByIdAndUserEmail(clienteId, userEmail)
                     .orElseThrow(() -> new Exception("Cliente no encontrado"));
-            
+
             order.setCliente(cliente);
-        } else {
-            throw new Exception("Debe especificar un cliente válido para la orden");
-        }
-        
-        // Asignar o validar userEmail
-        if (order.getId() == null) {
-            // Orden nueva
             order.setUserEmail(userEmail);
-        } else {
-            // Actualización: verificar que el usuario sea el propietario
-            OrdenDeServicio existente = findByIdAndUserEmail(order.getId(), userEmail);
-            order.setUserEmail(existente.getUserEmail()); // Mantener el propietario original
         }
-        
-        return ordenRepository.save(order);
+
+        OrdenDeServicio saved = ordenRepository.save(order);
+        System.out.println("✅ Orden guardada - ID: " + saved.getId() + ", Cliente: " + saved.getCliente().getNombre());
+
+        return saved;
     }
 
     @Transactional
@@ -95,21 +118,21 @@ public class OrdenDeServicioService {
     public OrdenDeServicio setEstado(Long id, String newEstado, String userEmail) throws Exception {
         // Verificar que la orden pertenezca al usuario
         OrdenDeServicio order = findByIdAndUserEmail(id, userEmail);
-        
+
         order.setEstado(newEstado.toUpperCase());
         OrdenDeServicio updatedOrder = ordenRepository.save(order);
 
         // Lógica de notificaciones según el estado
         switch (newEstado.toUpperCase()) {
             case "LISTO":
-                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " + 
+                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " +
                         order.getCliente().getNombre());
                 break;
-            
+
             case "ENTREGADO":
                 System.out.println("📦 Orden entregada: " + order.getId());
                 break;
-            
+
             case "EN_REPARACION":
                 System.out.println("🔧 Orden en reparación: " + order.getId());
                 break;
@@ -156,8 +179,8 @@ public class OrdenDeServicioService {
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado) throws Exception {
         OrdenDeServicio order = ordenRepository.findById(id)
-            .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
-        
+                .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
+
         order.setEstado(newEstado);
         return ordenRepository.save(order);
     }

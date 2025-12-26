@@ -26,7 +26,7 @@ public class OrdenDeServicio {
     private String userEmail;
 
     // Relación con Cliente: Una Orden pertenece a Un Cliente
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
@@ -35,9 +35,6 @@ public class OrdenDeServicio {
 
     @Column(name = "equipo_modelo", length = 100)
     private String equipoModelo;
-
-    @Column(name = "equipo_serie", length = 100)
-    private String equipoSerie;
 
     @Column(name = "patron_contrasena", length = 100)
     private String patronContrasena;

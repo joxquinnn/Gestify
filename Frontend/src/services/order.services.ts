@@ -4,45 +4,51 @@ import type { OrdenServicio } from '../context/AppContext';
 
 // Convertir de formato frontend a backend
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
-  return {
+  const backend: any = {
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
     tipoEquipo: orden.dispositivo || 'Celular',
-    patronContrasena: orden.password || '', 
+    patronContrasena: orden.password || '',
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
-    // Aseguramos que el estado sea el que el Enum de Java espera
     estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO',
-    costoTotal: orden.total || 0,
-    cliente: clienteId ? { id: clienteId } : null
+    costoTotal: orden.total || 0
   };
+
+  // ✅ Solo agregar cliente si se proporciona clienteId
+  if (clienteId) {
+    backend.cliente = { id: clienteId };
+  }
+
+  return backend;
 };
 
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
   return {
-    id: `OS-${orden.id}`, 
+    id: `OS-${orden.id}`,
     cliente: orden.cliente?.nombre || 'Sin cliente',
+    clienteId: orden.cliente?.id, 
     telefono: orden.cliente?.telefono || '',
-    dispositivo: 'Celular', 
-    marcaModelo: orden.equipoModelo || '', 
+    dispositivo: orden.tipoEquipo || 'Celular',
+    marcaModelo: orden.equipoModelo || '',
     password: orden.patronContrasena || '',
-    fallaReportada: orden.diagnosticoInicial || '', 
-    accesorios: orden.condicionFisica || '', 
+    fallaReportada: orden.diagnosticoInicial || '',
+    accesorios: orden.condicionFisica || '',
     estado: (orden.estado || 'RECIBIDO')
       .replace(/_/g, ' ')
       .split(' ')
       .map((word: string) => word.charAt(0) + word.slice(1).toLowerCase())
       .join(' ') as any,
-    fechaIngreso: orden.fechaRecepcion 
+    fechaIngreso: orden.fechaRecepcion
       ? new Date(orden.fechaRecepcion).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0],
-    total: Number(orden.costoTotal) || 0 // BigDecimal → number
+    total: Number(orden.costoTotal) || 0
   };
 };
 
 export const ordenesService = {
-  //  Obtener todas las órdenes del usuario autenticado
+  // Obtener todas las órdenes del usuario autenticado
   async getOrdenes(): Promise<OrdenServicio[]> {
     try {
       console.log('📥 Obteniendo órdenes desde backend...');
@@ -55,19 +61,19 @@ export const ordenesService = {
     }
   },
 
-  //  Crear nueva orden
+  // Crear nueva orden
   async crearOrden(orden: Omit<OrdenServicio, 'id'>, clienteId?: number): Promise<OrdenServicio> {
     try {
       console.log('💾 Creando orden en backend...');
       console.log('📋 Datos recibidos:', orden);
       console.log('👤 Cliente ID:', clienteId);
-      
+
       const ordenBackend = toBackendFormat(orden, clienteId);
       console.log('📤 Datos enviados a backend:', ordenBackend);
-      
+
       const response = await api.post('/ordenes', ordenBackend);
       console.log('✅ Respuesta del backend:', response.data);
-      
+
       return toFrontendFormat(response.data);
     } catch (error: any) {
       console.error('❌ Error al crear orden:', error);
@@ -77,26 +83,35 @@ export const ordenesService = {
     }
   },
 
-  //  Actualizar orden existente
-  async actualizarOrden(id: string, orden: Partial<OrdenServicio>): Promise<OrdenServicio> {
+  // ✅ ACTUALIZAR ORDEN (CON clienteId)
+  async actualizarOrden(
+    id: string,
+    orden: Partial<OrdenServicio>,
+    clienteId?: number
+  ): Promise<OrdenServicio> {
     try {
       console.log('🔄 Actualizando orden:', id);
-      
-      // Extraer el número del ID (OS-1001 → 1001)
+      console.log('📋 Datos a actualizar:', orden);
+      console.log('👤 Cliente ID:', clienteId);
+
       const numericId = id.replace('OS-', '');
-      
-      const ordenBackend = toBackendFormat(orden);
+
+      // ✅ Pasar clienteId si está disponible
+      const ordenBackend = toBackendFormat(orden, clienteId);
+      console.log('📤 Datos enviados a backend:', ordenBackend);
+
       const response = await api.put(`/ordenes/${numericId}`, ordenBackend);
-      
+
       console.log('✅ Orden actualizada:', response.data);
       return toFrontendFormat(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error al actualizar orden:', error);
+      console.error('📄 Respuesta error:', error.response?.data);
       throw error;
     }
   },
 
-  //  Eliminar orden
+  // Eliminar orden
   async eliminarOrden(id: string): Promise<void> {
     try {
       console.log('🗑️ Eliminando orden:', id);
@@ -113,15 +128,14 @@ export const ordenesService = {
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
     try {
       console.log('🔄 Cambiando estado:', id, '→', nuevoEstado);
-      
+
       const numericId = id.replace('OS-', '');
       const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
-      
-      // Tu backend usa @RequestParam, así que enviamos como query param
+
       const response = await api.put(
         `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
       );
-      
+
       console.log('✅ Estado actualizado:', response.data);
       return toFrontendFormat(response.data);
     } catch (error) {
@@ -130,7 +144,7 @@ export const ordenesService = {
     }
   },
 
-  //  Obtener órdenes recientes
+  // Obtener órdenes recientes
   async getOrdenesRecientes(limit: number = 5): Promise<OrdenServicio[]> {
     try {
       const response = await api.get(`/ordenes/recientes?limit=${limit}`);
@@ -141,7 +155,7 @@ export const ordenesService = {
     }
   },
 
-  //  Obtener estadísticas
+  // Obtener estadísticas
   async getEstadisticas(): Promise<any> {
     try {
       const response = await api.get('/ordenes/estadisticas/estados');
