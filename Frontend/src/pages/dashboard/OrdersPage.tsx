@@ -13,7 +13,7 @@ interface OrdenServicio {
   password?: string;
   fallaReportada?: string;
   accesorios?: string;
-  estado: 'Pendiente' | 'En Proceso' | 'Terminado' | 'Cancelado';
+  estado: 'Pendiente' | 'En Proceso' | 'Terminado' | 'Entregado';
   fechaIngreso: string;
   total: number;
 }
@@ -147,11 +147,13 @@ const OrdersPage: React.FC = () => {
 
     try {
       setIsSaving(true);
+      console.log('💾 Guardando cambios de la orden:', selectedOrder);
       await actualizarOrden(selectedOrder);
       setIsEditing(false);
       alert('✅ Orden actualizada correctamente');
-    } catch (error) {
-      console.error('Error al actualizar:', error);
+    } catch (error: any) {
+      console.error('❌ Error al actualizar:', error);
+      alert(`Error al actualizar: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -171,7 +173,7 @@ const OrdersPage: React.FC = () => {
     if (activeTab === 'activas') {
       return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
     }
-    return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Cancelado');
+    return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Entregado');
   });
 
   return (

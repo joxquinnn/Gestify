@@ -21,11 +21,11 @@ public class OrdenDeServicioService {
     private final RepuestoService repuestoService;
 
     public OrdenDeServicioService(
-        OrdenDeServicioRepository ordenRepository, 
-        DetalleOrdenItemRepository detalleRepository,
-        ClienteRepository clienteRepository,
-        RepuestoService repuestoService) {
-        
+            OrdenDeServicioRepository ordenRepository,
+            DetalleOrdenItemRepository detalleRepository,
+            ClienteRepository clienteRepository,
+            RepuestoService repuestoService) {
+
         this.ordenRepository = ordenRepository;
         this.detalleRepository = detalleRepository;
         this.clienteRepository = clienteRepository;
@@ -47,37 +47,33 @@ public class OrdenDeServicioService {
 
     @Transactional
     public OrdenDeServicio saveOrder(OrdenDeServicio order, String userEmail) throws Exception {
-        
+
         if (order.getCliente() != null && order.getCliente().getId() != null) {
             Long clienteId = order.getCliente().getId();
-            
-            // Verificar que el cliente existe Y pertenece al usuario
+
             boolean clientePertenece = clienteRepository
                     .existsByIdAndUserEmail(clienteId, userEmail);
-            
+
             if (!clientePertenece) {
                 throw new Exception("El cliente seleccionado no existe o no tienes permiso para usarlo");
             }
-            
-            // Cargar el cliente completo desde la base de datos
+
             Cliente cliente = clienteRepository.findByIdAndUserEmail(clienteId, userEmail)
                     .orElseThrow(() -> new Exception("Cliente no encontrado"));
-            
+
             order.setCliente(cliente);
         } else {
             throw new Exception("Debe especificar un cliente válido para la orden");
         }
-        
-        // Asignar o validar userEmail
+
         if (order.getId() == null) {
             // Orden nueva
             order.setUserEmail(userEmail);
         } else {
-            // Actualización: verificar que el usuario sea el propietario
             OrdenDeServicio existente = findByIdAndUserEmail(order.getId(), userEmail);
-            order.setUserEmail(existente.getUserEmail()); // Mantener el propietario original
+            order.setUserEmail(existente.getUserEmail());
         }
-        
+
         return ordenRepository.save(order);
     }
 
@@ -95,21 +91,21 @@ public class OrdenDeServicioService {
     public OrdenDeServicio setEstado(Long id, String newEstado, String userEmail) throws Exception {
         // Verificar que la orden pertenezca al usuario
         OrdenDeServicio order = findByIdAndUserEmail(id, userEmail);
-        
+
         order.setEstado(newEstado.toUpperCase());
         OrdenDeServicio updatedOrder = ordenRepository.save(order);
 
         // Lógica de notificaciones según el estado
         switch (newEstado.toUpperCase()) {
             case "LISTO":
-                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " + 
+                System.out.println("📱 Notificación pendiente: Equipo listo para cliente " +
                         order.getCliente().getNombre());
                 break;
-            
+
             case "ENTREGADO":
-                System.out.println("📦 Orden entregada: " + order.getId());
+                System.out.println("📦 Orden entregada al cliente: " + order.getId());
                 break;
-            
+
             case "EN_REPARACION":
                 System.out.println("🔧 Orden en reparación: " + order.getId());
                 break;
@@ -156,8 +152,8 @@ public class OrdenDeServicioService {
     @Transactional
     public OrdenDeServicio setEstado(Long id, String newEstado) throws Exception {
         OrdenDeServicio order = ordenRepository.findById(id)
-            .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
-        
+                .orElseThrow(() -> new Exception("Orden de Servicio no encontrada"));
+
         order.setEstado(newEstado);
         return ordenRepository.save(order);
     }

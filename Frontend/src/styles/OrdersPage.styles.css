@@ -395,6 +395,17 @@
     }
 }
 
+.status-pill.entregado {
+    background-color: #10b981;
+    color: white;
+}
+
+.status-select.entregado {
+    background-color: #10b981;
+    color: white;
+    border-color: #059669;
+}
+
 /* --- TABS DE HISTORIAL (NUEVO) --- */
 .orders-tabs {
   display: flex;

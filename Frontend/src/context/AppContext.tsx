@@ -31,7 +31,7 @@ export interface OrdenServicio {
     password?: string;
     fallaReportada?: string;
     accesorios?: string;
-    estado: 'Pendiente' | 'En Proceso' | 'Terminado' | 'Cancelado';
+    estado: 'Pendiente' | 'En Proceso' | 'Terminado' | 'Entregado';
     fechaIngreso: string;
     total: number;
 }

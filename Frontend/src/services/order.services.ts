@@ -20,6 +20,17 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
 
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
+   const estadoMap: Record<string, string> = {
+    'RECIBIDO': 'Pendiente',
+    'DIAGNOSTICO': 'Pendiente',
+    'EN_REPARACION': 'En Proceso',
+    'LISTO': 'Terminado',
+    'ENTREGADO': 'Entregado'
+  };
+
+  const estadoBackend = orden.estado || 'RECIBIDO';
+  const estadoFrontend = estadoMap[estadoBackend] || 'Pendiente';
+  
   return {
     id: `OS-${orden.id}`, 
     cliente: orden.cliente?.nombre || 'Sin cliente',
@@ -29,11 +40,7 @@ const toFrontendFormat = (orden: any): OrdenServicio => {
     password: orden.patronContrasena || '',
     fallaReportada: orden.diagnosticoInicial || '', 
     accesorios: orden.condicionFisica || '', 
-    estado: (orden.estado || 'RECIBIDO')
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map((word: string) => word.charAt(0) + word.slice(1).toLowerCase())
-      .join(' ') as any,
+    estado: estadoFrontend as any,
     fechaIngreso: orden.fechaRecepcion 
       ? new Date(orden.fechaRecepcion).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0],
@@ -81,17 +88,26 @@ export const ordenesService = {
   async actualizarOrden(id: string, orden: Partial<OrdenServicio>): Promise<OrdenServicio> {
     try {
       console.log('🔄 Actualizando orden:', id);
+      console.log('📋 Datos a actualizar:', orden);
       
-      // Extraer el número del ID (OS-1001 → 1001)
       const numericId = id.replace('OS-', '');
       
-      const ordenBackend = toBackendFormat(orden);
+      const ordenActualResponse = await api.get(`/ordenes/${numericId}`);
+      const ordenActual = ordenActualResponse.data;
+      const clienteId = ordenActual.cliente?.id;
+      
+      console.log('👤 Cliente ID de la orden:', clienteId);
+      
+      const ordenBackend = toBackendFormat(orden, clienteId);
+      console.log('📤 Datos enviados al backend:', ordenBackend);
+      
       const response = await api.put(`/ordenes/${numericId}`, ordenBackend);
       
       console.log('✅ Orden actualizada:', response.data);
       return toFrontendFormat(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error al actualizar orden:', error);
+      console.error('📄 Respuesta error:', error.response?.data);
       throw error;
     }
   },
