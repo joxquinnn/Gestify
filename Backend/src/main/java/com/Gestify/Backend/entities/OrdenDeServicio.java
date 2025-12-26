@@ -30,8 +30,8 @@ public class OrdenDeServicio {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @Column(name = "fecha_recepcion", nullable = false, updatable = false)
-    private LocalDateTime fechaRecepcion = LocalDateTime.now();
+    @Column(name = "fecha_recepcion", nullable = false, updatable = false) 
+    private LocalDateTime fechaRecepcion;
 
     @Column(name = "equipo_modelo", length = 100)
     private String equipoModelo;

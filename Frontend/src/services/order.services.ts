@@ -19,7 +19,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
     tipoEquipo: orden.dispositivo || 'Celular',
-    patronContrasena: orden.password || '', 
+    patronContrasena: orden.password || '',
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
     estado: estadoBackend,
@@ -30,7 +30,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
 
 // Convertir de formato backend a frontend
 const toFrontendFormat = (orden: any): OrdenServicio => {
-   const estadoMap: Record<string, string> = {
+  const estadoMap: Record<string, string> = {
     'RECIBIDO': 'Pendiente',
     'DIAGNOSTICO': 'Pendiente',
     'EN_REPARACION': 'En Proceso',
@@ -40,18 +40,18 @@ const toFrontendFormat = (orden: any): OrdenServicio => {
 
   const estadoBackend = orden.estado || 'RECIBIDO';
   const estadoFrontend = estadoMap[estadoBackend] || 'Pendiente';
-  
+
   return {
-    id: `OS-${orden.id}`, 
+    id: `OS-${orden.id}`,
     cliente: orden.cliente?.nombre || 'Sin cliente',
     telefono: orden.cliente?.telefono || '',
-    dispositivo: 'Celular', 
-    marcaModelo: orden.equipoModelo || '', 
+    dispositivo: 'Celular',
+    marcaModelo: orden.equipoModelo || '',
     password: orden.patronContrasena || '',
-    fallaReportada: orden.diagnosticoInicial || '', 
-    accesorios: orden.condicionFisica || '', 
+    fallaReportada: orden.diagnosticoInicial || '',
+    accesorios: orden.condicionFisica || '',
     estado: estadoFrontend as any,
-    fechaIngreso: orden.fechaRecepcion 
+    fechaIngreso: orden.fechaRecepcion
       ? new Date(orden.fechaRecepcion).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0],
     total: Number(orden.costoTotal) || 0 // BigDecimal → number
@@ -78,13 +78,13 @@ export const ordenesService = {
       console.log('💾 Creando orden en backend...');
       console.log('📋 Datos recibidos:', orden);
       console.log('👤 Cliente ID:', clienteId);
-      
+
       const ordenBackend = toBackendFormat(orden, clienteId);
       console.log('📤 Datos enviados a backend:', ordenBackend);
-      
+
       const response = await api.post('/ordenes', ordenBackend);
       console.log('✅ Respuesta del backend:', response.data);
-      
+
       return toFrontendFormat(response.data);
     } catch (error: any) {
       console.error('❌ Error al crear orden:', error);
@@ -95,31 +95,44 @@ export const ordenesService = {
   },
 
   //  Actualizar orden existente
-  async actualizarOrden(id: string, orden: Partial<OrdenServicio>): Promise<OrdenServicio> {
+  async actualizarOrden(id: string, orden: OrdenServicio, clienteId: number): Promise<OrdenServicio> {
     try {
-      console.log('🔄 Actualizando orden:', id);
-      console.log('📋 Datos a actualizar:', orden);
-      
-      const numericId = id.replace('OS-', '');
-      
-      const ordenActualResponse = await api.get(`/ordenes/${numericId}`);
-      const ordenActual = ordenActualResponse.data;
-      const clienteId = ordenActual.cliente?.id;
-      
-      console.log('👤 Cliente ID de la orden:', clienteId);
-      
-      const ordenBackend = toBackendFormat(orden, clienteId);
-      console.log('📤 Datos enviados al backend:', ordenBackend);
-      
-      const response = await api.put(`/ordenes/${numericId}`, ordenBackend);
-      
-      console.log('✅ Orden actualizada:', response.data);
+      const numericId = parseInt(id);
+
+      // Construimos el objeto EXACTO que espera el Controller de Java
+      const body = {
+        id: numericId, // El ID debe ir dentro del JSON también
+        equipoModelo: orden.marcaModelo,
+        tipoEquipo: orden.dispositivo,
+        patronContrasena: orden.password || '',
+        diagnosticoInicial: orden.fallaReportada,
+        condicionFisica: orden.accesorios,
+        estado: this.mapearEstadoABackend(orden.estado), // Asegúrate de mapear a RECIBIDO, EN_REPARACION, etc.
+        costoTotal: orden.total,
+        // IMPORTANTE: Spring necesita el objeto cliente con su ID para vincularlo
+        cliente: {
+          id: clienteId
+        }
+      };
+
+      console.log('📤 Cuerpo enviado al backend:', body);
+
+      const response = await api.put(`/ordenes/${numericId}`, body);
       return toFrontendFormat(response.data);
     } catch (error: any) {
-      console.error('❌ Error al actualizar orden:', error);
-      console.error('📄 Respuesta error:', error.response?.data);
+      console.error('❌ Error detallado en PUT:', error.response?.data);
       throw error;
     }
+  },
+
+  mapearEstadoABackend(estadoFront: string): string {
+    const map: Record<string, string> = {
+      'Pendiente': 'RECIBIDO',
+      'En Proceso': 'EN_REPARACION',
+      'Terminado': 'LISTO',
+      'Entregado': 'ENTREGADO'
+    };
+    return map[estadoFront] || 'RECIBIDO';
   },
 
   //  Eliminar orden
@@ -139,24 +152,24 @@ export const ordenesService = {
   async cambiarEstado(id: string, nuevoEstado: string): Promise<OrdenServicio> {
     try {
       console.log('🔄 Cambiando estado:', id, '→', nuevoEstado);
-      
+
       const numericId = id.replace('OS-', '');
-      
+
       const estadoFrontendToBackend: Record<string, string> = {
         'Pendiente': 'RECIBIDO',
         'En Proceso': 'EN_REPARACION',
         'Terminado': 'LISTO',
         'Entregado': 'ENTREGADO'
       };
-      
+
       const estadoBackend = estadoFrontendToBackend[nuevoEstado] || nuevoEstado.toUpperCase().replace(/\s+/g, '_');
-      
+
       console.log('📤 Estado a enviar al backend:', estadoBackend);
-      
+
       const response = await api.put(
         `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
       );
-      
+
       console.log('✅ Estado actualizado:', response.data);
       return toFrontendFormat(response.data);
     } catch (error: any) {

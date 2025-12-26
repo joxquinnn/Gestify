@@ -56,11 +56,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, isAuthenticated } = useAuth();
-    
+
     const [ordenes, setOrdenes] = useState<OrdenServicio[]>([]);
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [loading, setLoading] = useState(true);
-    
+
     const [configuracion, setConfiguracion] = useState<BusinessConfig>({
         nombreNegocio: 'Gestify Service',
         rut: '12.345.678-9',
@@ -76,7 +76,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             console.log('⚠️ Usuario no autenticado, no se pueden cargar órdenes');
             return;
         }
-        
+
         try {
             console.log('📥 Cargando órdenes desde PostgreSQL (Railway)...');
             const ordenesBackend = await ordenesService.getOrdenes();
@@ -84,14 +84,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             console.log('✅ Órdenes cargadas desde DB:', ordenesBackend.length);
         } catch (error: any) {
             console.error('❌ Error al cargar órdenes desde DB:', error);
-            
+
             // Mensaje específico según el error
             if (error.response?.status === 401) {
                 console.error('🔒 Token expirado, redirigiendo a login...');
             } else if (!error.response) {
                 console.error('🔴 Backend no disponible en Railway');
             }
-            
+
             setOrdenes([]);
         }
     };
@@ -102,7 +102,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             console.log('⚠️ Usuario no autenticado, no se pueden cargar clientes');
             return;
         }
-        
+
         try {
             console.log('📥 Cargando clientes desde PostgreSQL (Railway)...');
             const clientesBackend = await clientesService.getClientes();
@@ -143,10 +143,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     //  CARGAR CONFIGURACIÓN (Solo en localStorage por ahora)
     const cargarConfiguracion = () => {
         if (!user?.email) return;
-        
+
         const configKey = `gestify_config_${user.email}`;
         const savedConfig = localStorage.getItem(configKey);
-        
+
         if (savedConfig) {
             try {
                 setConfiguracion(JSON.parse(savedConfig));
@@ -175,12 +175,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (isAuthenticated && user?.email) {
                 setLoading(true);
                 console.log('🔄 Inicializando datos desde Railway para:', user.email);
-                
+
                 await Promise.all([
                     cargarOrdenes(),
                     cargarClientes()
                 ]);
-                
+
                 cargarConfiguracion();
                 setLoading(false);
                 console.log('✅ Datos inicializados correctamente');
@@ -208,16 +208,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const actualizarOrden = async (ordenActualizada: OrdenServicio) => {
         try {
             console.log('🔄 Actualizando orden en PostgreSQL:', ordenActualizada.id);
+
+            const clienteEncontrado = clientes.find(c => c.nombre === ordenActualizada.cliente);
+
+            if (!clienteEncontrado) {
+                console.error('❌ No se encontró el cliente:', ordenActualizada.cliente);
+                alert('Error: El cliente asociado a esta orden no existe en el sistema.');
+                return;
+            }
+
             const ordenBackend = await ordenesService.actualizarOrden(
-                ordenActualizada.id, 
-                ordenActualizada
+                ordenActualizada.id,
+                ordenActualizada,
+                clienteEncontrado.id 
             );
-            
-            // Actualizar estado local
-            setOrdenes(prev => prev.map(o => 
+
+            setOrdenes(prev => prev.map(o =>
                 o.id === ordenActualizada.id ? ordenBackend : o
             ));
-            
+
             console.log('✅ Orden actualizada en DB');
         } catch (error) {
             console.error('❌ Error al actualizar orden en DB:', error);
@@ -235,10 +244,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
             console.log('🗑️ Eliminando orden de PostgreSQL:', id);
             await ordenesService.eliminarOrden(id);
-            
+
             // Actualizar estado local
             setOrdenes(prev => prev.filter(o => o.id !== id));
-            
+
             console.log('✅ Orden eliminada de DB');
         } catch (error) {
             console.error('❌ Error al eliminar orden de DB:', error);
