@@ -30,14 +30,14 @@ public class OrdenDeServicio {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @Column(name = "fecha_recepcion", nullable = false, updatable = false) 
+    @Column(name = "fecha_recepcion", nullable = false, updatable = false)
     private LocalDateTime fechaRecepcion;
 
     @Column(name = "equipo_modelo", length = 100)
     private String equipoModelo;
 
-    @Column(name = "equipo_serie", length = 100)
-    private String equipoSerie;
+    @Column(name = "tipo_equipo", length = 50)
+    private String tipoEquipo;
 
     @Column(name = "patron_contrasena", length = 100)
     private String patronContrasena;
