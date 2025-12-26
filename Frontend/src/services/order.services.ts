@@ -47,7 +47,7 @@ const toFrontendFormat = (orden: any): OrdenServicio => {
     id: `OS-${orden.id}`,
     cliente: orden.cliente?.nombre || 'Sin cliente',
     telefono: orden.cliente?.telefono || '',
-    dispositivo: 'Celular',
+    dispositivo: orden.tipoEquipo || 'Celular',
     marcaModelo: orden.equipoModelo || '',
     password: orden.patronContrasena || '',
     fallaReportada: orden.diagnosticoInicial || '',
