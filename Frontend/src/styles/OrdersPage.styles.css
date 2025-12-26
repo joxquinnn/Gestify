@@ -398,12 +398,22 @@
 .status-pill.entregado {
     background-color: #10b981;
     color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .status-select.entregado {
     background-color: #10b981;
     color: white;
-    border-color: #059669;
+    border: 2px solid #059669;
+    font-weight: 600;
+}
+
+.status-select.entregado option {
+    background-color: white;
+    color: #1f2937;
 }
 
 /* --- TABS DE HISTORIAL (NUEVO) --- */

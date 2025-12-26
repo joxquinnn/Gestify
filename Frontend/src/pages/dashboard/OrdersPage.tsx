@@ -379,7 +379,7 @@ const OrdersPage: React.FC = () => {
                     <option value="Pendiente">Pendiente</option>
                     <option value="En Proceso">En Proceso</option>
                     <option value="Terminado">Terminado</option>
-                    <option value="Cancelado">Cancelado</option>
+                    <option value="Entregado">Entregado</option>
                   </select>
                 </div>
                 <button

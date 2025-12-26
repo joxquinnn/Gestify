@@ -4,6 +4,16 @@ import type { OrdenServicio } from '../context/AppContext';
 
 // Convertir de formato frontend a backend
 const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any => {
+  // Mapeo de estados frontend a backend
+  const estadoFrontendToBackend: Record<string, string> = {
+    'Pendiente': 'RECIBIDO',
+    'En Proceso': 'EN_REPARACION',
+    'Terminado': 'LISTO',
+    'Entregado': 'ENTREGADO'
+  };
+
+  const estadoBackend = orden.estado ? estadoFrontendToBackend[orden.estado] || 'RECIBIDO' : 'RECIBIDO';
+
   return {
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
@@ -11,8 +21,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
     patronContrasena: orden.password || '', 
     diagnosticoInicial: orden.fallaReportada || '',
     condicionFisica: orden.accesorios || '',
-    // Aseguramos que el estado sea el que el Enum de Java espera
-    estado: orden.estado ? orden.estado.toUpperCase().replace(/\s+/g, '_') : 'RECIBIDO',
+    estado: estadoBackend,
     costoTotal: orden.total || 0,
     cliente: clienteId ? { id: clienteId } : null
   };
@@ -131,17 +140,27 @@ export const ordenesService = {
       console.log('🔄 Cambiando estado:', id, '→', nuevoEstado);
       
       const numericId = id.replace('OS-', '');
-      const estadoBackend = nuevoEstado.toUpperCase().replace(/\s+/g, '_');
       
-      // Tu backend usa @RequestParam, así que enviamos como query param
+      const estadoFrontendToBackend: Record<string, string> = {
+        'Pendiente': 'RECIBIDO',
+        'En Proceso': 'EN_REPARACION',
+        'Terminado': 'LISTO',
+        'Entregado': 'ENTREGADO'
+      };
+      
+      const estadoBackend = estadoFrontendToBackend[nuevoEstado] || nuevoEstado.toUpperCase().replace(/\s+/g, '_');
+      
+      console.log('📤 Estado a enviar al backend:', estadoBackend);
+      
       const response = await api.put(
         `/ordenes/${numericId}/estado?newEstado=${estadoBackend}`
       );
       
       console.log('✅ Estado actualizado:', response.data);
       return toFrontendFormat(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error al cambiar estado:', error);
+      console.error('📄 Respuesta error:', error.response?.data);
       throw error;
     }
   },
