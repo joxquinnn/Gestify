@@ -62,12 +62,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [loading, setLoading] = useState(true);
 
     const [configuracion, setConfiguracion] = useState<BusinessConfig>({
-        nombreNegocio: 'Gestify Service',
-        rut: '12.345.678-9',
-        direccion: 'Av. Principal 123, Santiago',
-        telefono: '+56 9 1234 5678',
-        email: 'contacto@gestify.cl',
-        sitioWeb: 'www.gestify.cl'
+        nombreNegocio: 'Servitec Carahue',
+        rut: '18.195.452-3',
+        direccion: 'Manuel Rodríguez, 239B, Carahue',
+        telefono: '+56 9 3122 8675',
+        email: 'serviteccarahue@gmail.com',
+        sitioWeb: ''
     });
 
     //  CARGAR ÓRDENES DESDE BACKEND (PostgreSQL en Railway)
