@@ -190,12 +190,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setOrdenes([]);
                 setClientes([]);
                 setConfiguracion({
-                    nombreNegocio: 'Gestify Service',
-                    rut: '12.345.678-9',
-                    direccion: 'Av. Principal 123, Santiago',
-                    telefono: '+56 9 1234 5678',
-                    email: 'contacto@gestify.cl',
-                    sitioWeb: 'www.gestify.cl'
+                    nombreNegocio: `Servitec Carahue`,
+                    rut: '18.195.452-3',
+                    direccion: 'Manuel Rodriguez, 239B, Carahue',
+                    telefono: '+56 9 3122 8675',
+                    email: 'serviteccarahue@gmail.com',
+                    sitioWeb: ''
                 });
                 setLoading(false);
             }
@@ -220,7 +220,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const ordenBackend = await ordenesService.actualizarOrden(
                 ordenActualizada.id,
                 ordenActualizada,
-                clienteEncontrado.id 
+                clienteEncontrado.id
             );
 
             setOrdenes(prev => prev.map(o =>
