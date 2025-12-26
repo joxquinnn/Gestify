@@ -15,6 +15,7 @@ const toBackendFormat = (orden: Partial<OrdenServicio>, clienteId?: number): any
   const estadoBackend = orden.estado ? estadoFrontendToBackend[orden.estado] || 'RECIBIDO' : 'RECIBIDO';
 
   return {
+    id: orden.id,
     equipoModelo: orden.marcaModelo || '',
     equipoSerie: 'N/A',
     tipoEquipo: orden.dispositivo || 'Celular',

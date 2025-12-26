@@ -22,7 +22,7 @@ public class OrdenDeServicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_email", nullable = false, length = 255)
+    @Column(name = "user_email", nullable = false, updatable = false)
     private String userEmail;
 
     // Relación con Cliente: Una Orden pertenece a Un Cliente
@@ -30,7 +30,7 @@ public class OrdenDeServicio {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @Column(name = "fecha_recepcion", nullable = false)
+    @Column(name = "fecha_recepcion", nullable = false, updatable = false)
     private LocalDateTime fechaRecepcion = LocalDateTime.now();
 
     @Column(name = "equipo_modelo", length = 100)
