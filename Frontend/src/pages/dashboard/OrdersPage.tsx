@@ -171,9 +171,9 @@ const OrdersPage: React.FC = () => {
       o.marcaModelo.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (activeTab === 'activas') {
-      return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'En Proceso');
+      return matchesSearch && (o.estado === 'Pendiente' || o.estado === 'Terminado' || o.estado === 'En Proceso');
     }
-    return matchesSearch && (o.estado === 'Terminado' || o.estado === 'Entregado');
+    return matchesSearch && (o.estado === 'Entregado');
   });
 
   return (
@@ -193,13 +193,13 @@ const OrdersPage: React.FC = () => {
           className={activeTab === 'activas' ? 'active' : ''}
           onClick={() => setActiveTab('activas')}
         >
-          Activas ({ordenes.filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso').length})
+          Activas ({ordenes.filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso' || o.estado === 'Terminado').length})
         </button>
         <button
           className={activeTab === 'finalizadas' ? 'active' : ''}
           onClick={() => setActiveTab('finalizadas')}
         >
-          Historial / Finalizadas
+          Historial / Entregadas
         </button>
       </div>
 

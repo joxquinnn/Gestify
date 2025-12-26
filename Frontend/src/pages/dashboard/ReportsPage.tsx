@@ -8,12 +8,12 @@ const ReportsPage: React.FC = () => {
 
   // Filtrar órdenes por el mes seleccionado y que estén terminadas (Cobradas)
   const ordenesMes = ordenes.filter(o => o.fechaIngreso.startsWith(filterMonth));
-  const ordenesCobradas = ordenesMes.filter(o => o.estado === 'Terminado');
+  const ordenesCobradas = ordenesMes.filter(o => o.estado === 'Entregado');
 
   // Cálculos de dinero
   const ingresosTotales = ordenesCobradas.reduce((acc, current) => acc + current.total, 0);
   const totalPendiente = ordenesMes
-    .filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso')
+    .filter(o => o.estado === 'Pendiente' || o.estado === 'En Proceso' || o.estado === 'Terminado')
     .reduce((acc, current) => acc + current.total, 0);
 
   return (
