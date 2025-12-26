@@ -157,12 +157,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } else {
             // Configuración por defecto
             const defaultConfig = {
-                nombreNegocio: `Servicio Técnico ${user.nombre}`,
-                rut: '12.345.678-9',
-                direccion: 'Av. Principal 123, Santiago',
-                telefono: '+56 9 1234 5678',
-                email: user.email,
-                sitioWeb: 'www.gestify.cl'
+                nombreNegocio: `Servitec Carahue`,
+                rut: '18.195.452-3',
+                direccion: 'Manuel Rodriguez, 239B, Carahue',
+                telefono: '+56 9 3122 8675',
+                email: 'serviteccarahue@gmail.com',
+                sitioWeb: ''
             };
             setConfiguracion(defaultConfig);
             console.log('✅ Configuración por defecto aplicada');
