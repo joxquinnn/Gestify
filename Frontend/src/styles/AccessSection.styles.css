@@ -1,0 +1,126 @@
+.access-section {
+    padding: 100px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.access-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.access-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 40px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.access-heading {
+    font-size: 3rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 25px;
+    letter-spacing: -1px;
+}
+
+.access-description {
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 800px;
+    margin: 0 auto 50px;
+    line-height: 1.7;
+    font-weight: 500;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-5px);
+}
+
+.benefit-icon {
+    width: 28px;
+    height: 28px;
+    background: white;
+    color: #667eea;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.benefit-text {
+    color: white;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.access-cta-button {
+    padding: 18px 50px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.access-cta-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+    background: #f8fafc;
+}
+
+@media (max-width: 768px) {
+    .access-heading {
+        font-size: 2rem;
+    }
+    
+    .access-description {
+        font-size: 1.1rem;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}

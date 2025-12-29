@@ -1,58 +1,54 @@
-// src/components/HeroSection.tsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/HeroSection.styles.css'; 
+import '../styles/HeroSection.styles.css';
 
 const HeroSection: React.FC = () => {
-  const navigate = useNavigate();
+    const scrollToContacto = () => {
+        const section = document.getElementById('contacto');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
-  return (
-    <div className="hero-section">
-      <div className="hero-container">
-        
-        <h1 className="hero-title">
-          Control Total y Eficiencia <br /> 
-          para tu <span className="accent-text">Servicio Técnico</span>
-        </h1>
-        
-        <p className="hero-subtitle">
-          Gestify centraliza órdenes de servicio, clientes y repuestos, permitiendo a tu equipo enfocarse en lo que mejor sabe hacer: reparar.
-        </p>
+    const scrollToFeatures = () => {
+        const section = document.getElementById('features');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
-        <div className="cta-group">
-          <button 
-            className="primary-cta-button large-button"
-            onClick={() => {
-              console.log('🟢 Navegando a /register desde Hero');
-              navigate('/register');
-            }}
-          >
-            Comienza Gratis
-          </button>
-          
-          <button 
-            className="secondary-cta-button large-button"
-            onClick={() => {
-              // Scroll suave a la sección de features
-              const featuresSection = document.getElementById('features');
-              if (featuresSection) {
-                featuresSection.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-          >
-            Ver Funcionalidades
-          </button>
-        </div>
-        
-        <div className="hero-image-placeholder">
-            <span className="placeholder-text">
-                [Placeholder de la interfaz del Dashboard de Gestify]
-            </span>
-        </div>
-
-      </div>
-    </div>
-  );
+    return (
+        <section className="hero-section">
+            <div className="hero-container">
+                <h1 className="hero-title">
+                    La Solución <span className="accent-text">Profesional</span> que tu Negocio Necesita
+                </h1>
+                
+                <p className="hero-subtitle">
+                    Plataforma exclusiva diseñada para optimizar tus procesos y llevar tu empresa al siguiente nivel. 
+                    Acceso limitado bajo solicitud.
+                </p>
+                
+                <div className="cta-group">
+                    <button 
+                        onClick={scrollToContacto}
+                        className="large-button primary-cta-button"
+                    >
+                        Solicitar Demostración
+                    </button>
+                    <button 
+                        onClick={scrollToFeatures}
+                        className="large-button secondary-cta-button"
+                    >
+                        Ver Características
+                    </button>
+                </div>
+                
+                <div className="hero-image-placeholder">
+                    <span className="placeholder-text">Dashboard Preview</span>
+                </div>
+            </div>
+        </section>
+    );
 };
 
 export default HeroSection;

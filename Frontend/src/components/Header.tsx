@@ -7,12 +7,15 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const goToLogin = () => {
-        navigate('/login');
-    };
+    navigate('/login');
+  };
 
-  const goToRegister = () => {
-        navigate('/register');
-    };
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <header className="main-header">
@@ -29,24 +32,34 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="nav-menu">
-            <a href="#features" className="nav-link">FUNCIONALIDADES</a>
+            <button 
+              onClick={() => scrollToSection('features')}
+              className="nav-link"
+            >
+              FUNCIONALIDADES
+            </button>
+            <button 
+              onClick={() => scrollToSection('contacto')}
+              className="nav-link"
+            >
+              CONTACTO
+            </button>
           </nav>
         </div>
 
         <div className="header-right-group">
-
           <button
-           className="nav-button secondary-cta-button request-tour-button"
-           onClick={goToLogin}
-           >
+            className="login-link"
+            onClick={goToLogin}
+          >
             INICIAR SESIÓN
           </button>
           
           <button
-           className="nav-button primary-cta-button request-tour-button"
-           onClick={goToRegister}
-           >
-            REGISTRARSE
+            className="nav-button primary-cta-button"
+            onClick={() => scrollToSection('contacto')}
+          >
+            SOLICITAR ACCESO
           </button>
         </div>
       </div>
