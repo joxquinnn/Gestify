@@ -62,12 +62,6 @@ const VideoDemoSection: React.FC = () => {
         }
     };
 
-    const getVisibleMarkers = () => {
-        return markers.filter(marker =>
-            Math.abs(marker.time - currentTime) < 3
-        );
-    };
-
     return (
         <section className="video-demo-section">
             <div className="video-demo-container">
