@@ -49,14 +49,14 @@ const Header: React.FC = () => {
 
         <div className="header-right-group">
           <button
-            className="login-link"
+            className="secondary-cta-button"
             onClick={goToLogin}
           >
             INICIAR SESIÓN
           </button>
           
           <button
-            className="nav-button primary-cta-button"
+            className=" primary-cta-button"
             onClick={() => scrollToSection('contacto')}
           >
             SOLICITAR ACCESO
