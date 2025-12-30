@@ -3,12 +3,17 @@ package com.Gestify.Backend.controller;
 import com.Gestify.Backend.entities.ConfiguracionNegocio;
 import com.Gestify.Backend.services.ConfiguracionNegocioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/configuracion")
+@CrossOrigin(origins = {"http://localhost:5173", "https://gestifystc.vercel.app"})
 public class ConfiguracionController {
 
     @Autowired
@@ -20,11 +25,23 @@ public class ConfiguracionController {
     @GetMapping
     public ResponseEntity<?> obtenerConfiguracion(Authentication authentication) {
         try {
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createErrorResponse("Usuario no autenticado"));
+            }
+
             String email = authentication.getName();
+            System.out.println("📥 Obteniendo configuración para: " + email);
+            
             ConfiguracionNegocio config = configuracionService.obtenerConfiguracion(email);
+            System.out.println("✅ Configuración obtenida: " + config.getNombreNegocio());
+            
             return ResponseEntity.ok(config);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al obtener configuración: " + e.getMessage());
+            System.err.println("❌ Error al obtener configuración: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al obtener configuración: " + e.getMessage()));
         }
     }
 
@@ -36,11 +53,24 @@ public class ConfiguracionController {
             @RequestBody ConfiguracionNegocio configuracion,
             Authentication authentication) {
         try {
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createErrorResponse("Usuario no autenticado"));
+            }
+
             String email = authentication.getName();
+            System.out.println("💾 Guardando configuración para: " + email);
+            System.out.println("📤 Datos recibidos: " + configuracion.getNombreNegocio());
+            
             ConfiguracionNegocio configGuardada = configuracionService.guardarConfiguracion(email, configuracion);
+            System.out.println("✅ Configuración guardada exitosamente");
+            
             return ResponseEntity.ok(configGuardada);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al guardar configuración: " + e.getMessage());
+            System.err.println("❌ Error al guardar configuración: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al guardar configuración: " + e.getMessage()));
         }
     }
 
@@ -52,11 +82,32 @@ public class ConfiguracionController {
             @RequestBody ConfiguracionNegocio configuracion,
             Authentication authentication) {
         try {
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(createErrorResponse("Usuario no autenticado"));
+            }
+
             String email = authentication.getName();
+            System.out.println("🔄 Actualizando configuración para: " + email);
+            
             ConfiguracionNegocio configActualizada = configuracionService.guardarConfiguracion(email, configuracion);
+            System.out.println("✅ Configuración actualizada exitosamente");
+            
             return ResponseEntity.ok(configActualizada);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al actualizar configuración: " + e.getMessage());
+            System.err.println("❌ Error al actualizar configuración: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("Error al actualizar configuración: " + e.getMessage()));
         }
+    }
+
+    /**
+     * Método auxiliar para crear respuestas de error consistentes
+     */
+    private Map<String, String> createErrorResponse(String mensaje) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", mensaje);
+        return error;
     }
 }
