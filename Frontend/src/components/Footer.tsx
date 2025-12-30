@@ -106,7 +106,7 @@ const Footer: React.FC = () => {
                             rel="noopener noreferrer"
                             className="devLink"
                         >
-                            JKDSTUDIO
+                            JKD STUDIO
                         </a>
                     </div>
                 </div>

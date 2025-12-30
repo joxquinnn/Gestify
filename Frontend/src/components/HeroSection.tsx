@@ -9,8 +9,8 @@ const HeroSection: React.FC = () => {
         }
     };
 
-    const scrollToFeatures = () => {
-        const section = document.getElementById('features');
+    const scrollToCaracteristicas = () => {
+        const section = document.getElementById('caracteristicas');
         if (section) {
             section.scrollIntoView({ behavior: 'smooth' });
         }
@@ -36,7 +36,7 @@ const HeroSection: React.FC = () => {
                         Solicitar Demostración
                     </button>
                     <button 
-                        onClick={scrollToFeatures}
+                        onClick={scrollToCaracteristicas}
                         className="large-button secondary-cta-button"
                     >
                         Ver Características
@@ -44,7 +44,24 @@ const HeroSection: React.FC = () => {
                 </div>
                 
                 <div className="hero-image-placeholder">
-                    <span className="placeholder-text">Dashboard Preview</span>
+                    <video 
+                        className="hero-video-preview"
+                        autoPlay 
+                        loop 
+                        muted 
+                        playsInline
+                        poster="/images/video-thumbnail.jpg"
+                    >
+                        <source src="/videos/gestify-preview.mp4" type="video/mp4" />
+                    </video>
+                    <div className="video-play-overlay">
+                        <button 
+                            className="play-demo-button"
+                            onClick={() => document.getElementById('video-demo')?.scrollIntoView({ behavior: 'smooth' })}
+                        >
+                            ▶ Ver Demo Completo
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
