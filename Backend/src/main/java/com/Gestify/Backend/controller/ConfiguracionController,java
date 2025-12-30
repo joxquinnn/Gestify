@@ -1,0 +1,62 @@
+package com.Gestify.Backend.controller;
+
+import com.Gestify.Backend.entities.ConfiguracionNegocio;
+import com.Gestify.Backend.services.ConfiguracionNegocioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/configuracion")
+public class ConfiguracionController {
+
+    @Autowired
+    private ConfiguracionNegocioService configuracionService;
+
+    /**
+     * GET /api/configuracion - Obtener configuración del usuario autenticado
+     */
+    @GetMapping
+    public ResponseEntity<?> obtenerConfiguracion(Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            ConfiguracionNegocio config = configuracionService.obtenerConfiguracion(email);
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al obtener configuración: " + e.getMessage());
+        }
+    }
+
+    /**
+     * POST /api/configuracion - Crear o actualizar configuración
+     */
+    @PostMapping
+    public ResponseEntity<?> guardarConfiguracion(
+            @RequestBody ConfiguracionNegocio configuracion,
+            Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            ConfiguracionNegocio configGuardada = configuracionService.guardarConfiguracion(email, configuracion);
+            return ResponseEntity.ok(configGuardada);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al guardar configuración: " + e.getMessage());
+        }
+    }
+
+    /**
+     * PUT /api/configuracion - Actualizar configuración
+     */
+    @PutMapping
+    public ResponseEntity<?> actualizarConfiguracion(
+            @RequestBody ConfiguracionNegocio configuracion,
+            Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            ConfiguracionNegocio configActualizada = configuracionService.guardarConfiguracion(email, configuracion);
+            return ResponseEntity.ok(configActualizada);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar configuración: " + e.getMessage());
+        }
+    }
+}

@@ -3,14 +3,13 @@ import '../../styles/SettingsPage.styles.css';
 import { useAppContext } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { configuracionService, type ConfiguracionNegocio } from '../../services/configuracion.services';
 
-interface BusinessInfo {
-  nombreNegocio: string;
-  rut: string;
-  direccion: string;
-  telefono: string;
+interface ProfileData {
+  nombre: string;
   email: string;
-  sitioWeb: string;
+  telefono: string;
+  cargo: string;
 }
 
 interface NotificationSettings {
@@ -23,14 +22,15 @@ interface NotificationSettings {
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'business' | 'profile' | 'notifications' | 'security'>('business');
 
-  const { configuracion, setConfiguracion } = useAppContext();
+  const { configuracion, guardarConfiguracion } = useAppContext();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<BusinessInfo>(configuracion);
+  const [formData, setFormData] = useState<ConfiguracionNegocio>(configuracion);
+  const [saving, setSaving] = useState(false);
 
   // Estados para perfil
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileData>({
     nombre: user?.nombre || '',
     email: user?.email || '',
     telefono: '',
@@ -52,10 +52,12 @@ const SettingsPage: React.FC = () => {
     confirmPassword: ''
   });
 
+  // Cargar configuración cuando cambie
   useEffect(() => {
     setFormData(configuracion);
   }, [configuracion]);
 
+  // Cargar perfil del usuario
   useEffect(() => {
     setProfileData({
       nombre: user?.nombre || '',
@@ -68,19 +70,42 @@ const SettingsPage: React.FC = () => {
   // ============================================
   // HANDLERS - INFORMACIÓN DEL NEGOCIO
   // ============================================
-  const handleSaveBusinessInfo = (e: React.FormEvent) => {
+  const handleSaveBusinessInfo = async (e: React.FormEvent) => {
     e.preventDefault();
-    setConfiguracion(formData);
-    alert('✅ Información del negocio guardada y vinculada a tus reportes.');
+    setSaving(true);
+    
+    try {
+      await guardarConfiguracion(formData);
+      alert('✅ Información del negocio guardada correctamente en la base de datos.');
+    } catch (error) {
+      console.error('Error al guardar configuración:', error);
+      alert('❌ Error al guardar la información. Por favor intenta nuevamente.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // ============================================
   // HANDLERS - PERFIL
   // ============================================
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí podrías hacer una llamada a tu API para actualizar el perfil
-    alert('✅ Perfil actualizado correctamente');
+    setSaving(true);
+
+    try {
+      await configuracionService.actualizarPerfil({
+        nombre: profileData.nombre,
+        telefono: profileData.telefono,
+        cargo: profileData.cargo
+      });
+      
+      alert('✅ Perfil actualizado correctamente');
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      alert('❌ Error al actualizar el perfil. Por favor intenta nuevamente.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePhotoUpload = () => {
@@ -105,9 +130,10 @@ const SettingsPage: React.FC = () => {
   // ============================================
   // HANDLERS - SEGURIDAD
   // ============================================
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validaciones frontend
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       alert('❌ Las contraseñas no coinciden');
       return;
@@ -118,33 +144,58 @@ const SettingsPage: React.FC = () => {
       return;
     }
 
-    // Aquí iría la llamada al backend para cambiar la contraseña
-    alert('✅ Contraseña actualizada correctamente');
-    setPasswordForm({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-  };
+    setSaving(true);
 
-  const handleEnable2FA = () => {
-    alert('🔐 Autenticación de dos factores en desarrollo');
-  };
+    try {
+      await configuracionService.cambiarPassword({
+        passwordActual: passwordForm.currentPassword,
+        passwordNueva: passwordForm.newPassword
+      });
 
-  const handleCloseOtherSessions = () => {
-    if (window.confirm('¿Cerrar todas las demás sesiones activas?')) {
-      alert('✅ Sesiones cerradas exitosamente');
+      alert('✅ Contraseña actualizada correctamente');
+      
+      // Limpiar formulario
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error: any) {
+      console.error('Error al cambiar contraseña:', error);
+      
+      // Mostrar mensaje de error específico del backend
+      const errorMessage = error.message || 'Error al cambiar la contraseña';
+      alert(`❌ ${errorMessage}`);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDeleteAccount = () => {
-    if (window.confirm('⚠️ ¿ESTÁS SEGURO? Esta acción eliminará permanentemente tu cuenta y todos tus datos. Esta acción NO se puede deshacer.')) {
-      const confirmText = prompt('Escribe "ELIMINAR" para confirmar:');
-      if (confirmText === 'ELIMINAR') {
-        alert('Tu cuenta será eliminada en 24 horas. Recibirás un email de confirmación.');
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('⚠️ ¿ESTÁS SEGURO? Esta acción eliminará permanentemente tu cuenta y todos tus datos. Esta acción NO se puede deshacer.')) {
+      return;
+    }
+
+    const confirmText = prompt('Escribe "ELIMINAR" para confirmar:');
+    
+    if (confirmText === 'ELIMINAR') {
+      setSaving(true);
+      
+      try {
+        await configuracionService.eliminarCuenta();
+        alert('✅ Tu cuenta ha sido eliminada permanentemente.');
+        
+        // Cerrar sesión y redirigir a login
         logout();
         navigate('/login');
+      } catch (error) {
+        console.error('Error al eliminar cuenta:', error);
+        alert('❌ Error al eliminar la cuenta. Por favor intenta nuevamente.');
+      } finally {
+        setSaving(false);
       }
+    } else {
+      alert('❌ Confirmación incorrecta. No se eliminó la cuenta.');
     }
   };
 
@@ -260,8 +311,12 @@ const SettingsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="btn-save-settings">
-                  💾 Guardar y Aplicar a Documentos
+                <button 
+                  type="submit" 
+                  className="btn-save-settings"
+                  disabled={saving}
+                >
+                  {saving ? '⏳ Guardando...' : '💾 Guardar y Aplicar a Documentos'}
                 </button>
               </form>
             </div>
@@ -309,7 +364,12 @@ const SettingsPage: React.FC = () => {
                     value={profileData.email}
                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                     required
+                    disabled
+                    style={{ opacity: 0.6, cursor: 'not-allowed' }}
                   />
+                  <small style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                    * El email no se puede modificar
+                  </small>
                 </div>
 
                 <div className="form-group">
@@ -335,8 +395,12 @@ const SettingsPage: React.FC = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn-save-settings">
-                💾 Guardar Cambios
+              <button 
+                type="submit" 
+                className="btn-save-settings"
+                disabled={saving}
+              >
+                {saving ? '⏳ Guardando...' : '💾 Guardar Cambios'}
               </button>
             </form>
           </div>
@@ -431,7 +495,7 @@ const SettingsPage: React.FC = () => {
 
             {/* CAMBIAR CONTRASEÑA */}
             <div className="security-option">
-              <h3>🔑 Cambiar Contraseña</h3>
+              <h3>🔒 Cambiar Contraseña</h3>
               <p>Actualiza tu contraseña regularmente para mayor seguridad</p>
 
               <form onSubmit={handleChangePassword}>
@@ -472,55 +536,14 @@ const SettingsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="btn-secondary">
-                  Actualizar Contraseña
+                <button 
+                  type="submit" 
+                  className="btn-secondary"
+                  disabled={saving}
+                >
+                  {saving ? '⏳ Actualizando...' : 'Actualizar Contraseña'}
                 </button>
               </form>
-            </div>
-
-            <div className="divider"></div>
-
-            {/* AUTENTICACIÓN DE DOS FACTORES */}
-            <div className="security-option">
-              <h3>🔐 Autenticación de Dos Factores (2FA)</h3>
-              <p>Añade una capa extra de seguridad a tu cuenta</p>
-              <button className="btn-secondary" onClick={handleEnable2FA}>
-                Activar 2FA
-              </button>
-            </div>
-
-            <div className="divider"></div>
-
-            {/* SESIONES ACTIVAS */}
-            <div className="security-option">
-              <h3>💻 Sesiones Activas</h3>
-              <p>Administra los dispositivos con acceso a tu cuenta</p>
-
-              <div className="active-sessions">
-                <div className="session-item">
-                  <div className="session-info">
-                    <strong>🖥️ Chrome en Windows</strong>
-                    <p>Nueva Imperial, Chile • Última actividad: Ahora</p>
-                  </div>
-                  <span className="session-badge current">Sesión Actual</span>
-                </div>
-
-                <div className="session-item">
-                  <div className="session-info">
-                    <strong>📱 Safari en iPhone</strong>
-                    <p>Santiago, Chile • Última actividad: Hace 2 días</p>
-                  </div>
-                  <button className="btn-danger-small">Cerrar</button>
-                </div>
-              </div>
-
-              <button
-                className="btn-secondary"
-                style={{ marginTop: '15px' }}
-                onClick={handleCloseOtherSessions}
-              >
-                Cerrar Todas las Demás Sesiones
-              </button>
             </div>
 
             <div className="divider"></div>
@@ -529,8 +552,12 @@ const SettingsPage: React.FC = () => {
             <div className="danger-zone">
               <h3>⚠️ Zona de Peligro</h3>
               <p>Estas acciones son permanentes y no se pueden deshacer.</p>
-              <button className="btn-danger" onClick={handleDeleteAccount}>
-                Eliminar Cuenta Permanentemente
+              <button 
+                className="btn-danger" 
+                onClick={handleDeleteAccount}
+                disabled={saving}
+              >
+                {saving ? '⏳ Procesando...' : 'Eliminar Cuenta Permanentemente'}
               </button>
             </div>
           </div>

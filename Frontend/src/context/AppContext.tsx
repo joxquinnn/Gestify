@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { ordenesService } from '../services/order.services';
 import { clientesService } from '../services/clientes.service';
+import { configuracionService, type ConfiguracionNegocio } from '../services/configuracion.services';
 
 // Interfaces
 interface Cliente {
@@ -11,15 +12,6 @@ interface Cliente {
     email: string;
     telefono: string;
     estado: 'Activo' | 'Inactivo';
-}
-
-interface BusinessConfig {
-    nombreNegocio: string;
-    rut: string;
-    direccion: string;
-    telefono: string;
-    email: string;
-    sitioWeb: string;
 }
 
 export interface OrdenServicio {
@@ -41,14 +33,16 @@ interface AppContextType {
     setOrdenes: React.Dispatch<React.SetStateAction<OrdenServicio[]>>;
     clientes: Cliente[];
     setClientes: React.Dispatch<React.SetStateAction<Cliente[]>>;
-    configuracion: BusinessConfig;
-    setConfiguracion: React.Dispatch<React.SetStateAction<BusinessConfig>>;
+    configuracion: ConfiguracionNegocio;
+    setConfiguracion: React.Dispatch<React.SetStateAction<ConfiguracionNegocio>>;
     eliminarOrden: (id: string) => Promise<void>;
     actualizarOrden: (orden: OrdenServicio) => Promise<void>;
     cargarOrdenes: () => Promise<void>;
     cargarClientes: () => Promise<void>;
     agregarCliente: (cliente: Omit<Cliente, 'id'>) => Promise<void>;
     eliminarCliente: (id: number) => Promise<void>;
+    cargarConfiguracion: () => Promise<void>;
+    guardarConfiguracion: (config: ConfiguracionNegocio) => Promise<void>;
     loading: boolean;
 }
 
@@ -61,7 +55,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [configuracion, setConfiguracion] = useState<BusinessConfig>({
+    // Configuración por defecto
+    const [configuracion, setConfiguracion] = useState<ConfiguracionNegocio>({
         nombreNegocio: 'Servitec Carahue',
         rut: '18.195.452-3',
         direccion: 'Manuel Rodríguez, 239B, Carahue',
@@ -70,7 +65,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         sitioWeb: ''
     });
 
-    //  CARGAR ÓRDENES DESDE BACKEND (PostgreSQL en Railway)
+    // ============================================
+    // CARGAR ÓRDENES DESDE BACKEND
+    // ============================================
     const cargarOrdenes = async () => {
         if (!isAuthenticated) {
             console.log('⚠️ Usuario no autenticado, no se pueden cargar órdenes');
@@ -85,7 +82,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         } catch (error: any) {
             console.error('❌ Error al cargar órdenes desde DB:', error);
 
-            // Mensaje específico según el error
             if (error.response?.status === 401) {
                 console.error('🔒 Token expirado, redirigiendo a login...');
             } else if (!error.response) {
@@ -96,7 +92,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    //  CARGAR CLIENTES DESDE BACKEND (PostgreSQL en Railway)
+    // ============================================
+    // CARGAR CLIENTES DESDE BACKEND
+    // ============================================
     const cargarClientes = async () => {
         if (!isAuthenticated) {
             console.log('⚠️ Usuario no autenticado, no se pueden cargar clientes');
@@ -114,7 +112,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    //  AGREGAR CLIENTE (EN BACKEND)
+    // ============================================
+    // CARGAR CONFIGURACIÓN DESDE BACKEND
+    // ============================================
+    const cargarConfiguracion = async () => {
+        if (!isAuthenticated) {
+            console.log('⚠️ Usuario no autenticado, no se puede cargar configuración');
+            return;
+        }
+
+        try {
+            console.log('📥 Cargando configuración desde PostgreSQL...');
+            const configBackend = await configuracionService.obtenerConfiguracion();
+            setConfiguracion(configBackend);
+            console.log('✅ Configuración cargada desde DB');
+        } catch (error) {
+            console.error('❌ Error al cargar configuración:', error);
+            // Mantener configuración por defecto si hay error
+        }
+    };
+
+    // ============================================
+    // GUARDAR CONFIGURACIÓN EN BACKEND
+    // ============================================
+    const guardarConfiguracion = async (config: ConfiguracionNegocio) => {
+        if (!isAuthenticated) {
+            console.log('⚠️ Usuario no autenticado');
+            return;
+        }
+
+        try {
+            console.log('💾 Guardando configuración en PostgreSQL...');
+            const configGuardada = await configuracionService.guardarConfiguracion(config);
+            setConfiguracion(configGuardada);
+            console.log('✅ Configuración guardada en DB');
+        } catch (error) {
+            console.error('❌ Error al guardar configuración:', error);
+            throw error;
+        }
+    };
+
+    // ============================================
+    // AGREGAR CLIENTE
+    // ============================================
     const agregarCliente = async (cliente: Omit<Cliente, 'id'>) => {
         try {
             console.log('💾 Guardando cliente en PostgreSQL...');
@@ -127,7 +167,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    //  ELIMINAR CLIENTE (EN BACKEND)
+
     const eliminarCliente = async (id: number) => {
         try {
             console.log('🗑️ Eliminando cliente de PostgreSQL...');
@@ -140,36 +180,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    //  CARGAR CONFIGURACIÓN (Solo en localStorage por ahora)
-    const cargarConfiguracion = () => {
-        if (!user?.email) return;
 
-        const configKey = `gestify_config_${user.email}`;
-        const savedConfig = localStorage.getItem(configKey);
-
-        if (savedConfig) {
-            try {
-                setConfiguracion(JSON.parse(savedConfig));
-                console.log('✅ Configuración cargada desde localStorage');
-            } catch (error) {
-                console.error('❌ Error al cargar configuración:', error);
-            }
-        } else {
-            // Configuración por defecto
-            const defaultConfig = {
-                nombreNegocio: `Servitec Carahue`,
-                rut: '18.195.452-3',
-                direccion: 'Manuel Rodriguez, 239B, Carahue',
-                telefono: '+56 9 3122 8675',
-                email: 'serviteccarahue@gmail.com',
-                sitioWeb: ''
-            };
-            setConfiguracion(defaultConfig);
-            console.log('✅ Configuración por defecto aplicada');
-        }
-    };
-
-    //  EFECTO: Cargar datos cuando usuario esté autenticado
     useEffect(() => {
         const inicializarDatos = async () => {
             if (isAuthenticated && user?.email) {
@@ -178,10 +189,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
                 await Promise.all([
                     cargarOrdenes(),
-                    cargarClientes()
+                    cargarClientes(),
+                    cargarConfiguracion()
                 ]);
 
-                cargarConfiguracion();
                 setLoading(false);
                 console.log('✅ Datos inicializados correctamente');
             } else {
@@ -190,9 +201,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 setOrdenes([]);
                 setClientes([]);
                 setConfiguracion({
-                    nombreNegocio: `Servitec Carahue`,
+                    nombreNegocio: 'Servitec Carahue',
                     rut: '18.195.452-3',
-                    direccion: 'Manuel Rodriguez, 239B, Carahue',
+                    direccion: 'Manuel Rodríguez, 239B, Carahue',
                     telefono: '+56 9 3122 8675',
                     email: 'serviteccarahue@gmail.com',
                     sitioWeb: ''
@@ -204,7 +215,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         inicializarDatos();
     }, [isAuthenticated, user?.email]);
 
-    //  ACTUALIZAR ORDEN (EN POSTGRESQL)
+   
     const actualizarOrden = async (ordenActualizada: OrdenServicio) => {
         try {
             console.log('🔄 Actualizando orden en PostgreSQL:', ordenActualizada.id);
@@ -235,7 +246,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     };
 
-    //  ELIMINAR ORDEN (EN POSTGRESQL)
+  
     const eliminarOrden = async (id: string) => {
         if (!window.confirm("¿Estás seguro de eliminar esta orden? Esta acción no se puede deshacer.")) {
             return;
@@ -244,10 +255,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
             console.log('🗑️ Eliminando orden de PostgreSQL:', id);
             await ordenesService.eliminarOrden(id);
-
-            // Actualizar estado local
             setOrdenes(prev => prev.filter(o => o.id !== id));
-
             console.log('✅ Orden eliminada de DB');
         } catch (error) {
             console.error('❌ Error al eliminar orden de DB:', error);
@@ -255,15 +263,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             throw error;
         }
     };
-
-    //  GUARDAR CONFIGURACIÓN 
-    useEffect(() => {
-        if (user?.email) {
-            const configKey = `gestify_config_${user.email}`;
-            localStorage.setItem(configKey, JSON.stringify(configuracion));
-            console.log('💾 Configuración guardada en localStorage');
-        }
-    }, [configuracion, user?.email]);
 
     return (
         <AppContext.Provider value={{
@@ -279,6 +278,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             cargarClientes,
             agregarCliente,
             eliminarCliente,
+            cargarConfiguracion,
+            guardarConfiguracion,
             loading
         }}>
             {loading ? (
