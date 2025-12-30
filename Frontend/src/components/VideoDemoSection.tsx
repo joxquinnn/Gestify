@@ -11,7 +11,7 @@ interface VideoMarker {
 const VideoDemoSection: React.FC = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showMarkers, setShowMarkers] = useState(true);
-    const [currentTime, setCurrentTime] = useState(0);
+    const [, setCurrentTime] = useState(0);
     const [selectedDemo, setSelectedDemo] = useState<'video' | 'youtube'>('video');
     const videoRef = useRef<HTMLVideoElement>(null);
 
