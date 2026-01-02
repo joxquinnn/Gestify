@@ -316,7 +316,7 @@ const SettingsPage: React.FC = () => {
                   className="btn-save-settings"
                   disabled={saving}
                 >
-                  {saving ? '⏳ Guardando...' : '💾 Guardar y Aplicar a Documentos'}
+                  {saving ? '⏳ Guardando...' : ' Guardar y Aplicar a Documentos'}
                 </button>
               </form>
             </div>
@@ -400,7 +400,7 @@ const SettingsPage: React.FC = () => {
                 className="btn-save-settings"
                 disabled={saving}
               >
-                {saving ? '⏳ Guardando...' : '💾 Guardar Cambios'}
+                {saving ? '⏳ Guardando...' : ' Guardar Cambios'}
               </button>
             </form>
           </div>
@@ -481,7 +481,7 @@ const SettingsPage: React.FC = () => {
               style={{ marginTop: '20px' }}
               onClick={handleSaveNotifications}
             >
-              💾 Guardar Preferencias
+               Guardar Preferencias
             </button>
           </div>
         )}
