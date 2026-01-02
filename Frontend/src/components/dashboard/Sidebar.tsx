@@ -5,9 +5,13 @@ const Sidebar: React.FC = () => {
 
     return (
         <aside className="sidebar">
-            <div className="sidebar-logo">
-                ⚙️ Gestify
-            </div>
+            <div className="logo">
+            <img
+              src="/images/Gestify-logo-empresa.png"
+              alt="Gestify - Control y Eficiencia"
+              className="logo-image"
+            /> 
+          </div>
             
             <nav>
                 <NavLink 
