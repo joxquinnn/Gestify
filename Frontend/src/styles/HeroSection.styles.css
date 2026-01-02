@@ -1,7 +1,7 @@
 .hero-section {
     padding-top: 140px;
     padding-bottom: 100px;
-    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    background: linear-gradient(135deg, #F7FAFC 0%, #EBF8FF 100%);
     position: relative;
     overflow: hidden;
 }
@@ -15,8 +15,8 @@
     right: 0;
     bottom: 0;
     background-image: 
-        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(59, 165, 220, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(91, 196, 245, 0.08) 0%, transparent 50%);
     pointer-events: none;
 }
 
@@ -26,15 +26,16 @@
     padding: 0 40px;
     position: relative;
     z-index: 1;
+    text-align: center;
 }
 
 .hero-title {
-    font-size: 4.5rem;
+    font-size: 4rem;
     font-weight: 900;
     line-height: 1.1;
-    color: #1e293b;
+    color: #1E3A5F;
     margin-bottom: 25px;
-    letter-spacing: -2px;
+    letter-spacing: -1.5px;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -50,7 +51,7 @@
 }
 
 .accent-text {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3BA5DC 0%, #5BC4F5 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -64,16 +65,16 @@
     bottom: -8px;
     left: 0;
     right: 0;
-    height: 6px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 5px;
+    background: linear-gradient(135deg, #3BA5DC 0%, #5BC4F5 100%);
     border-radius: 3px;
     opacity: 0.3;
 }
 
 .hero-subtitle {
     margin-top: 25px;
-    font-size: 1.4rem;
-    color: #475569;
+    font-size: 1.3rem;
+    color: #4A5568;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
@@ -92,51 +93,51 @@
 }
 
 .large-button {
-    padding: 16px 40px;
-    font-size: 1.15rem;
+    padding: 18px 40px;
+    font-size: 1.05rem;
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
 }
 
 .primary-cta-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3BA5DC 0%, #5BC4F5 100%);
     color: white;
     border: none;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(59, 165, 220, 0.4);
 }
 
 .primary-cta-button:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 12px 28px rgba(59, 165, 220, 0.5);
 }
 
 .secondary-cta-button {
     background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    color: #3BA5DC;
+    border: 2px solid #3BA5DC;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .secondary-cta-button:hover {
-    background: #667eea;
+    background: #3BA5DC;
     color: white;
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 20px rgba(59, 165, 220, 0.35);
 }
 
 .hero-image-placeholder {
     margin-top: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3BA5DC 0%, #5BC4F5 100%);
     height: 500px;
     border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 60px rgba(59, 165, 220, 0.35);
     position: relative;
     overflow: hidden;
     animation: fadeInUp 0.8s ease-out 0.6s backwards;
@@ -162,8 +163,7 @@
     position: relative;
 }
 
-/* Agregar estos estilos al final de tu HeroSection.styles.css existente */
-
+/* Estilos para video */
 .hero-video-preview {
     width: 100%;
     height: 100%;
@@ -180,8 +180,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(2px);
+    background: rgba(30, 58, 95, 0.4);
+    backdrop-filter: blur(3px);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -193,10 +193,10 @@
 .play-demo-button {
     padding: 18px 40px;
     background: white;
-    color: #667eea;
+    color: #3BA5DC;
     border: none;
     border-radius: 12px;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -204,29 +204,93 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .play-demo-button:hover {
     transform: scale(1.05);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    background: #3BA5DC;
+    color: white;
 }
 
-@media (max-width: 768px) {
+/* Responsive */
+@media (max-width: 1024px) {
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 3rem;
     }
     
     .hero-subtitle {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+    }
+    
+    .hero-image-placeholder {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding-top: 100px;
+        padding-bottom: 60px;
+    }
+    
+    .hero-container {
+        padding: 0 20px;
+    }
+    
+    .hero-title {
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-top: 20px;
     }
     
     .cta-group {
         flex-direction: column;
         align-items: center;
+        gap: 15px;
+        margin-top: 35px;
     }
     
     .large-button {
         width: 100%;
-        max-width: 300px;
+        max-width: 320px;
+        padding: 16px 32px;
+        font-size: 0.95rem;
+    }
+    
+    .hero-image-placeholder {
+        height: 300px;
+        margin-top: 50px;
+    }
+    
+    .play-demo-button {
+        padding: 14px 28px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .large-button {
+        font-size: 0.85rem;
+        padding: 14px 24px;
+    }
+    
+    .hero-image-placeholder {
+        height: 250px;
+        border-radius: 16px;
     }
 }
