@@ -22,11 +22,30 @@
     transition: transform 0.3s ease;
 }
 
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    padding: 15px 10px;
+    gap: 4px;
+}
+
+.sidebar-logo {
+    display: flex;
+    justify-content: center; 
+    align-items: center;    
+    padding: 15px 10px;   
+    background: rgba(59, 165, 220, 0.1);
+    border-bottom: 1px solid rgba(59, 165, 220, 0.2);
+}
+
 .logo-image {
-    max-height: 130px;
+    max-width: 100%;        
+    max-height: 80px;     
+    height: auto;
     width: auto;
     display: block;
     transition: all 0.3s ease;
+    object-fit: contain;
 }
 
 .logo-image:hover {
