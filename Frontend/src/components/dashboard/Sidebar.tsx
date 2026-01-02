@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink} from 'react-router-dom';
+import '../styles/HeroSection.styles.css';
 
 const Sidebar: React.FC = () => {
 
