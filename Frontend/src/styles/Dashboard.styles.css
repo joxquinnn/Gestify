@@ -22,6 +22,17 @@
     transition: transform 0.3s ease;
 }
 
+.logo-image {
+    max-height: 130px;
+    width: auto;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+    transform: scale(1.05);
+}
+
 .sidebar.mobile-closed {
     transform: translateX(-100%);
 }

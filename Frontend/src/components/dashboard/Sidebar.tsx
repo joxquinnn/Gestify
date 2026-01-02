@@ -1,18 +1,17 @@
 import React from 'react';
-import { NavLink} from 'react-router-dom';
-import '../styles/Header.styles.css'; 
+import { NavLink } from 'react-router-dom';
+import '../../styles/Dashboard.styles.css'; 
 
 const Sidebar: React.FC = () => {
-
     return (
         <aside className="sidebar">
-            <div className="logo">
-            <img
-              src="/images/Gestify-logo-empresa.png"
-              alt="Gestify - Control y Eficiencia"
-              className="logo-image"
-            /> 
-          </div>
+            <div className="sidebar-logo">
+                <img
+                    src="/images/Gestify-logo-empresa.png"
+                    alt="Gestify - Control y Eficiencia"
+                    className="logo-image"
+                /> 
+            </div>
             
             <nav>
                 <NavLink 
@@ -56,7 +55,6 @@ const Sidebar: React.FC = () => {
                 </NavLink>
             </nav>
 
-            {/* Opcional: Footer del sidebar */}
             <div className="sidebar-footer">
                 © 2025 Gestify
             </div>
